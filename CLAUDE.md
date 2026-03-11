@@ -2,7 +2,7 @@
 
 ## Project overview
 
-agents-radar is a daily digest generator for the AI open-source ecosystem. A GitHub Actions cron job runs at 00:00 UTC (08:00 CST) and produces five Chinese-language reports, published as GitHub Issues and committed Markdown files.
+agents-radar is a daily digest generator for the AI open-source ecosystem. A GitHub Actions cron job runs at 00:00 UTC (08:00 CST) and produces bilingual (Chinese + English) reports, published as GitHub Issues and committed Markdown files.
 
 ## Commands
 
@@ -51,15 +51,17 @@ The pipeline runs in four sequential phases, each implemented as a named async f
 | File | Responsibility |
 |------|---------------|
 | `src/index.ts` | Orchestration: repo config, phase functions, `main()` |
-| `src/github.ts` | GitHub API helpers: `fetchRecentItems`, `fetchRecentReleases`, `fetchSkillsData`, `createGitHubIssue` |
+| `src/github.ts` | GitHub API helpers: `fetchRecentItems`, `fetchRecentReleases`, `fetchSkillsData`, `createGitHubIssue`; shared `RepoFetch` type |
 | `src/prompts.ts` | LLM prompt builders (one per report type) and `formatItem` |
+| `src/date.ts` | CST (UTC+8) date helpers: `toCstDateStr`, `toUtcStr` |
 | `src/providers/types.ts` | `LlmProvider` interface, `ProviderName` type, `VALID_PROVIDER_NAMES` |
+| `src/providers/openai-compatible.ts` | `OpenAICompatibleProvider` — shared base class for OpenAI-compatible providers |
 | `src/providers/anthropic.ts` | `AnthropicProvider` — Anthropic SDK wrapper |
-| `src/providers/openai.ts` | `OpenAIProvider` — OpenAI SDK wrapper |
-| `src/providers/github-copilot.ts` | `GitHubCopilotProvider` — GitHub Models (OpenAI-compatible) |
-| `src/providers/openrouter.ts` | `OpenRouterProvider` — OpenRouter (OpenAI-compatible) |
+| `src/providers/openai.ts` | `OpenAIProvider` — extends `OpenAICompatibleProvider` |
+| `src/providers/github-copilot.ts` | `GitHubCopilotProvider` — extends `OpenAICompatibleProvider` |
+| `src/providers/openrouter.ts` | `OpenRouterProvider` — extends `OpenAICompatibleProvider` |
 | `src/providers/index.ts` | `createProvider` factory + barrel re-exports |
-| `src/report.ts` | `callLlm` (with concurrency limiter), `saveFile`, `autoGenFooter` |
+| `src/report.ts` | `callLlm` (with concurrency limiter), `saveFile`, `autoGenFooter`, LLM token budget constants |
 | `src/web.ts` | Sitemap-based web content fetching; state persisted to `digests/web-state.json` |
 | `src/trending.ts` | GitHub Trending HTML scraper + Search API topic queries |
 | `src/hn.ts` | Hacker News top AI stories via Algolia HN Search API |
