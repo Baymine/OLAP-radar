@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildCliReportContent, buildOpenclawReportContent } from "../report-builders.ts";
+import { buildIndexReportContent, buildPrimaryEngineReportContent } from "../report-builders.ts";
 import type { RepoDigest } from "../prompts.ts";
 import type { GitHubItem, GitHubRelease } from "../github.ts";
 
@@ -9,7 +9,7 @@ import type { GitHubItem, GitHubRelease } from "../github.ts";
 
 function makeDigest(overrides: Partial<RepoDigest> = {}): RepoDigest {
   return {
-    config: { id: "test-tool", repo: "org/test-tool", name: "TestTool" },
+    config: { id: "test-engine", repo: "org/test-engine", name: "TestEngine" },
     issues: [],
     prs: [],
     releases: [],
@@ -19,133 +19,97 @@ function makeDigest(overrides: Partial<RepoDigest> = {}): RepoDigest {
 }
 
 // ---------------------------------------------------------------------------
-// buildCliReportContent
+// buildIndexReportContent
 // ---------------------------------------------------------------------------
 
-describe("buildCliReportContent", () => {
+describe("buildIndexReportContent", () => {
   it("includes title, meta, and all sections (zh)", () => {
     const digests = [
-      makeDigest({ config: { id: "claude-code", repo: "anthropics/claude-code", name: "Claude Code" } }),
-      makeDigest({ config: { id: "codex", repo: "openai/codex", name: "OpenAI Codex" } }),
+      makeDigest({ config: { id: "dbt-core", repo: "dbt-labs/dbt-core", name: "dbt-core" } }),
+      makeDigest({ config: { id: "apache-spark", repo: "apache/spark", name: "Apache Spark" } }),
     ];
-    const result = buildCliReportContent(
+    const result = buildIndexReportContent(
       digests,
-      "Skills summary",
       "Comparison content",
       "2026-03-09 00:00",
       "2026-03-09",
       "\n---\nfooter",
-      "anthropics/skills",
       "zh",
     );
 
-    expect(result).toContain("# AI CLI 工具社区动态日报 2026-03-09");
-    expect(result).toContain("覆盖工具: 2 个");
-    expect(result).toContain("[Claude Code](https://github.com/anthropics/claude-code)");
-    expect(result).toContain("[Claude Code Skills](https://github.com/anthropics/skills)");
+    expect(result).toContain("# OLAP 生态索引日报 2026-03-09");
+    expect(result).toContain("覆盖项目: 2 个");
+    expect(result).toContain("[dbt-core](https://github.com/dbt-labs/dbt-core)");
+    expect(result).toContain("[Apache Spark](https://github.com/apache/spark)");
     expect(result).toContain("横向对比");
     expect(result).toContain("Comparison content");
-    expect(result).toContain("Skills summary");
     expect(result).toContain("footer");
   });
 
   it("includes title and meta in English", () => {
     const digests = [makeDigest()];
-    const result = buildCliReportContent(
-      digests,
-      "Skills",
-      "Comparison",
-      "2026-03-09 00:00",
-      "2026-03-09",
-      "",
-      "anthropics/skills",
-      "en",
-    );
-    expect(result).toContain("# AI CLI Tools Community Digest 2026-03-09");
-    expect(result).toContain("Cross-Tool Comparison");
-  });
-
-  it("nests skills section inside claude-code details only", () => {
-    const digests = [
-      makeDigest({ config: { id: "claude-code", repo: "anthropics/claude-code", name: "Claude Code" } }),
-      makeDigest({ config: { id: "codex", repo: "openai/codex", name: "Codex" } }),
-    ];
-    const result = buildCliReportContent(
-      digests,
-      "SKILLS_CONTENT",
-      "comparison",
-      "",
-      "",
-      "",
-      "anthropics/skills",
-      "zh",
-    );
-
-    // Skills should appear inside claude-code details
-    const claudeIdx = result.indexOf("Claude Code");
-    const skillsIdx = result.indexOf("SKILLS_CONTENT");
-    expect(skillsIdx).toBeGreaterThan(claudeIdx);
-    // Skills should not appear after codex section
-    expect(result.split("SKILLS_CONTENT")).toHaveLength(2); // appears exactly once
+    const result = buildIndexReportContent(digests, "Comparison", "2026-03-09 00:00", "2026-03-09", "", "en");
+    expect(result).toContain("# OLAP Ecosystem Index Digest 2026-03-09");
+    expect(result).toContain("Cross-Project Comparison");
   });
 });
 
 // ---------------------------------------------------------------------------
-// buildOpenclawReportContent
+// buildPrimaryEngineReportContent
 // ---------------------------------------------------------------------------
 
-describe("buildOpenclawReportContent", () => {
+describe("buildPrimaryEngineReportContent", () => {
   it("includes all sections (zh)", () => {
-    const openclaw = { id: "openclaw", repo: "openclaw/openclaw", name: "OpenClaw" };
-    const peers = [{ id: "peer1", repo: "org/peer1", name: "Peer1" }];
+    const primaryRepo = { id: "doris", repo: "apache/doris", name: "Apache Doris" };
+    const peers = [{ id: "clickhouse", repo: "ClickHouse/ClickHouse", name: "ClickHouse" }];
     const peerDigests = [makeDigest({ config: peers[0] })];
-    const fetchedOpenclaw = {
-      cfg: openclaw,
+    const fetchedPrimary = {
+      cfg: primaryRepo,
       issues: [{ number: 1 } as unknown as GitHubItem],
       prs: [] as GitHubItem[],
       releases: [] as GitHubRelease[],
     };
 
-    const result = buildOpenclawReportContent(
-      fetchedOpenclaw,
+    const result = buildPrimaryEngineReportContent(
+      fetchedPrimary,
       peerDigests,
-      "OpenClaw summary",
+      "Doris summary",
       "Peers comparison",
       "2026-03-09 00:00",
       "2026-03-09",
       "\nfooter",
-      openclaw,
+      primaryRepo,
       peers,
       "zh",
     );
 
-    expect(result).toContain("# OpenClaw 生态日报 2026-03-09");
+    expect(result).toContain("# Apache Doris 生态日报 2026-03-09");
     expect(result).toContain("Issues: 1");
     expect(result).toContain("覆盖项目: 2 个");
-    expect(result).toContain("[OpenClaw](https://github.com/openclaw/openclaw)");
-    expect(result).toContain("[Peer1](https://github.com/org/peer1)");
-    expect(result).toContain("OpenClaw 项目深度报告");
-    expect(result).toContain("横向生态对比");
-    expect(result).toContain("同赛道项目详细报告");
+    expect(result).toContain("[Apache Doris](https://github.com/apache/doris)");
+    expect(result).toContain("[ClickHouse](https://github.com/ClickHouse/ClickHouse)");
+    expect(result).toContain("Apache Doris 项目深度报告");
+    expect(result).toContain("横向引擎对比");
+    expect(result).toContain("同赛道引擎详细报告");
     expect(result).toContain("footer");
   });
 
   it("renders in English", () => {
-    const openclaw = { id: "openclaw", repo: "openclaw/openclaw", name: "OpenClaw" };
-    const result = buildOpenclawReportContent(
-      { cfg: openclaw, issues: [], prs: [], releases: [] },
+    const primaryRepo = { id: "doris", repo: "apache/doris", name: "Apache Doris" };
+    const result = buildPrimaryEngineReportContent(
+      { cfg: primaryRepo, issues: [], prs: [], releases: [] },
       [],
       "summary",
       "comparison",
       "",
       "2026-03-09",
       "",
-      openclaw,
+      primaryRepo,
       [],
       "en",
     );
-    expect(result).toContain("# OpenClaw Ecosystem Digest 2026-03-09");
-    expect(result).toContain("OpenClaw Deep Dive");
-    expect(result).toContain("Cross-Ecosystem Comparison");
+    expect(result).toContain("# Apache Doris Ecosystem Digest 2026-03-09");
+    expect(result).toContain("Apache Doris Deep Dive");
+    expect(result).toContain("Cross-Engine Comparison");
   });
 });

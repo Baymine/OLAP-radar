@@ -1,4 +1,4 @@
-name: Monthly Agents Radar
+name: Monthly OLAP Radar
 
 on:
   schedule:
@@ -48,7 +48,7 @@ jobs:
             echo "No monthly report to commit"
           else
             MONTH=$(date -u +%Y-%m)
-            git commit -m "digest: ${MONTH} monthly digest"
+            git commit -m "digest: ${MONTH} monthly OLAP digest"
             git pull --rebase
             git push
           fi
@@ -68,6 +68,6 @@ jobs:
       - name: Send Telegram notification
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || '@agents_radar' }}
-          PAGES_URL: https://duanyytop.github.io/agents-radar
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || '@olap_radar' }}
+          PAGES_URL: ${{ secrets.PAGES_URL }}
         run: pnpm notify

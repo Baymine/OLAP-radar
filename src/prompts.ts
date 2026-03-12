@@ -1,5 +1,6 @@
 /**
  * LLM prompt builders and item formatting.
+ * Domain: OLAP & advanced analytical storage engines.
  */
 
 import type { RepoConfig, GitHubItem, GitHubRelease } from "./github.ts";
@@ -55,8 +56,8 @@ export function formatItem(item: GitHubItem, lang: "zh" | "en" = "zh"): string {
 // Sampling helpers (shared)
 // ---------------------------------------------------------------------------
 
-const CLI_ISSUE_LIMIT = 30;
-const CLI_PR_LIMIT = 20;
+const INDEX_ISSUE_LIMIT = 30;
+const INDEX_PR_LIMIT = 20;
 
 /** Sort by comment count desc, take top N. */
 export function topN(items: GitHubItem[], n: number): GitHubItem[] {
@@ -73,10 +74,10 @@ export function sampleNote(total: number, sampled: number, lang: "zh" | "en" = "
 }
 
 // ---------------------------------------------------------------------------
-// Prompts
+// Index repo prompt (broad OLAP ecosystem pulse: dbt, Spark, Substrait…)
 // ---------------------------------------------------------------------------
 
-export function buildCliPrompt(
+export function buildIndexPrompt(
   cfg: RepoConfig,
   issues: GitHubItem[],
   prs: GitHubItem[],
@@ -84,8 +85,8 @@ export function buildCliPrompt(
   dateStr: string,
   lang: "zh" | "en" = "zh",
 ): string {
-  const sampledIssues = topN(issues, CLI_ISSUE_LIMIT);
-  const sampledPrs = topN(prs, CLI_PR_LIMIT);
+  const sampledIssues = topN(issues, INDEX_ISSUE_LIMIT);
+  const sampledPrs = topN(prs, INDEX_PR_LIMIT);
 
   const issuesText =
     sampledIssues.map((i) => formatItem(i, lang)).join("\n") || (lang === "en" ? "None" : "无");
@@ -100,7 +101,7 @@ export function buildCliPrompt(
   const prNote = sampleNote(prs.length, sampledPrs.length, lang);
 
   if (lang === "en") {
-    return `You are a technical analyst focused on AI developer tools. Based on the following GitHub data, generate the ${cfg.name} community digest for ${dateStr}.
+    return `You are a technical analyst focused on the OLAP and data infrastructure ecosystem. Based on the following GitHub data, generate the ${cfg.name} community digest for ${dateStr}.
 
 # Data source: github.com/${cfg.repo}
 
@@ -124,11 +125,11 @@ Generate a structured English digest with the following sections:
 5. **Feature Request Trends** - Distill the most-requested feature directions from all Issues
 6. **Developer Pain Points** - Summarize recurring developer frustrations or high-frequency requests
 
-Style: concise and professional, suited for technical developers. Include GitHub links for each item.
+Style: concise and professional, suited for data engineers and database developers. Include GitHub links for each item.
 `;
   }
 
-  return `你是一位专注于 AI 开发工具的技术分析师。请根据以下 GitHub 数据，生成 ${dateStr} 的 ${cfg.name} 社区动态日报。
+  return `你是一位专注于 OLAP 与数据基础设施生态的技术分析师。请根据以下 GitHub 数据，生成 ${dateStr} 的 ${cfg.name} 社区动态日报。
 
 # 数据来源: github.com/${cfg.repo}
 
@@ -149,12 +150,16 @@ ${prsText}
 2. **版本发布** - 如有新版本，总结更新内容；无则省略
 3. **社区热点 Issues** - 挑选 10 个最值得关注的 Issue，说明为什么重要、社区反应如何
 4. **重要 PR 进展** - 挑选 10 个重要的 PR，说明功能或修复内容
-5. **功能需求趋势** - 从所有 Issues 中提炼出社区最关注的功能方向（如 IDE 集成、性能、新模型支持等）
+5. **功能需求趋势** - 从所有 Issues 中提炼出社区最关注的功能方向（如查询优化、存储格式、兼容性等）
 6. **开发者关注点** - 总结开发者反馈中的痛点或高频需求
 
-语言要求：简洁专业，适合技术开发者阅读。每个条目附上 GitHub 链接。
+语言要求：简洁专业，适合数据工程师和数据库开发者阅读。每个条目附上 GitHub 链接。
 `;
 }
+
+// ---------------------------------------------------------------------------
+// Peer / Primary engine prompt (ClickHouse, DuckDB, StarRocks, Doris…)
+// ---------------------------------------------------------------------------
 
 const PEER_ISSUE_LIMIT = 30;
 const PEER_PR_LIMIT = 20;
@@ -191,7 +196,7 @@ export function buildPeerPrompt(
   const prSampleNote = sampleNote(totalPrs, sampledPrs.length, lang);
 
   if (lang === "en") {
-    return `You are an analyst of AI agent and personal AI assistant open-source projects. Based on the following GitHub data from ${cfg.name} (github.com/${cfg.repo}), generate a project digest for ${dateStr}.
+    return `You are an analyst of OLAP databases and analytical storage engine open-source projects. Based on the following GitHub data from ${cfg.name} (github.com/${cfg.repo}), generate a project digest for ${dateStr}.
 
 # Data Overview
 - Issues updated in last 24h: ${totalIssues} (open/active: ${openIssues}, closed: ${closedIssues})
@@ -213,18 +218,18 @@ Generate a structured English ${cfg.name} project digest with the following sect
 
 1. **Today's Overview** - 3-5 sentences summarizing project status, including activity assessment
 2. **Releases** - If new versions exist, detail changes, breaking changes, migration notes; omit if none
-3. **Project Progress** - Merged/closed PRs today, what features advanced or were fixed
-4. **Community Hot Topics** - Most active Issues/PRs with most comments/reactions (with links), analyze underlying needs
-5. **Bugs & Stability** - Bugs, crashes, regressions reported today, ranked by severity, note if fix PRs exist
-6. **Feature Requests & Roadmap Signals** - User-requested features, predict which might be in next version
-7. **User Feedback Summary** - Real user pain points, use cases, satisfaction/dissatisfaction
+3. **Project Progress** - Merged/closed PRs today: what query engine features, storage optimizations, or SQL compatibility fixes were advanced
+4. **Community Hot Topics** - Most active Issues/PRs with most comments/reactions (with links), analyze underlying technical needs
+5. **Bugs & Stability** - Bugs, crashes, query correctness issues, or regressions reported today, ranked by severity, note if fix PRs exist
+6. **Feature Requests & Roadmap Signals** - User-requested features (e.g. new SQL functions, storage formats, connectors), predict which might be in next version
+7. **User Feedback Summary** - Real user pain points, use cases, performance/compatibility satisfaction feedback
 8. **Backlog Watch** - Long-unanswered important Issues or PRs needing maintainer attention
 
 Style: objective, data-driven, highlighting project health. Include GitHub links for each item.
 `;
   }
 
-  return `你是一位 AI 智能体与个人 AI 助手领域开源项目分析师。请根据以下来自 ${cfg.name} (github.com/${cfg.repo}) 的 GitHub 数据，生成 ${dateStr} 的项目动态日报。
+  return `你是一位 OLAP 数据库与分析型存储引擎开源项目分析师。请根据以下来自 ${cfg.name} (github.com/${cfg.repo}) 的 GitHub 数据，生成 ${dateStr} 的项目动态日报。
 
 # 数据概览
 - 过去24小时 Issues 更新：${totalIssues} 条（新开/活跃: ${openIssues}，已关闭: ${closedIssues}）
@@ -246,29 +251,33 @@ ${prsText}
 
 1. **今日速览** - 用3-5句话概括项目今日整体状态，包括活跃度评估
 2. **版本发布** - 如有新版本，详细说明更新内容、破坏性变更、迁移注意事项；无则省略
-3. **项目进展** - 今日合并/关闭的重要 PR，说明推进了哪些功能或修复，项目整体向前迈进了多少
-4. **社区热点** - 今日讨论最活跃、评论最多、反应最多的 Issues/PRs（附链接），分析背后的诉求
-5. **Bug 与稳定性** - 今日报告的 Bug、崩溃、回归问题，按严重程度排列，标注是否已有 fix PR
-6. **功能请求与路线图信号** - 用户提出的新功能需求，结合已有 PR 判断哪些可能被纳入下一版本
-7. **用户反馈摘要** - 从 Issues 评论中提炼真实用户痛点、使用场景、满意/不满意的地方
+3. **项目进展** - 今日合并/关闭的重要 PR，说明推进了哪些查询引擎功能、存储优化或 SQL 兼容性修复
+4. **社区热点** - 今日讨论最活跃、评论最多、反应最多的 Issues/PRs（附链接），分析背后的技术诉求
+5. **Bug 与稳定性** - 今日报告的 Bug、崩溃、查询正确性问题或回归，按严重程度排列，标注是否已有 fix PR
+6. **功能请求与路线图信号** - 用户提出的新功能需求（如新 SQL 函数、存储格式、连接器等），结合已有 PR 判断哪些可能被纳入下一版本
+7. **用户反馈摘要** - 从 Issues 评论中提炼真实用户痛点、使用场景、性能/兼容性满意度
 8. **待处理积压** - 长期未响应的重要 Issue 或 PR，提醒维护者关注
 
 语言要求：客观专业，数据驱动，突出项目健康度。每个条目附上 GitHub 链接。
 `;
 }
 
+// ---------------------------------------------------------------------------
+// Peers comparison prompt
+// ---------------------------------------------------------------------------
+
 export function buildPeersComparisonPrompt(
-  openclawDigest: RepoDigest,
+  primaryDigest: RepoDigest,
   peerDigests: RepoDigest[],
   dateStr: string,
   lang: "zh" | "en" = "zh",
 ): string {
   const noActivityStr = lang === "en" ? "No activity in the last 24 hours." : "过去24小时无活动。";
 
-  const openclawSection =
+  const primarySection =
     lang === "en"
-      ? `## OpenClaw (core reference, github.com/${openclawDigest.config.repo})\n${openclawDigest.summary}`
-      : `## OpenClaw（核心参照，github.com/${openclawDigest.config.repo}）\n${openclawDigest.summary}`;
+      ? `## ${primaryDigest.config.name} (primary focus, github.com/${primaryDigest.config.repo})\n${primaryDigest.summary}`
+      : `## ${primaryDigest.config.name}（核心参照，github.com/${primaryDigest.config.repo}）\n${primaryDigest.summary}`;
 
   const peerSections = peerDigests
     .map((d) => {
@@ -279,9 +288,9 @@ export function buildPeersComparisonPrompt(
     .join("\n\n---\n\n");
 
   if (lang === "en") {
-    return `You are a senior analyst of the AI agent and personal AI assistant open-source ecosystem. The following are ${dateStr} community digest summaries for each project.
+    return `You are a senior analyst of the OLAP and analytical storage engine open-source ecosystem. The following are ${dateStr} community digest summaries for each project.
 
-${openclawSection}
+${primarySection}
 
 ---
 
@@ -289,23 +298,23 @@ ${peerSections}
 
 ---
 
-Generate a cross-project comparison report in English with these sections:
+Generate a cross-engine comparison report in English with these sections:
 
-1. **Ecosystem Overview** - 3-5 sentences on the overall personal AI assistant / agent open-source landscape
-2. **Activity Comparison** - Table comparing Issues count, PR count, Release status, and health score for each project
-3. **OpenClaw's Position** - Advantages vs peers, technical approach differences, community size comparison
-4. **Shared Technical Focus Areas** - Requirements emerging across multiple projects (note which projects, specific needs)
-5. **Differentiation Analysis** - Key differences in feature focus, target users, technical architecture
-6. **Community Momentum & Maturity** - Activity tiers, which are rapidly iterating, which are stabilizing
-7. **Trend Signals** - Industry trends extracted from community feedback, value for AI agent developers
+1. **Ecosystem Overview** - 3-5 sentences on the overall OLAP / analytical storage engine open-source landscape
+2. **Activity Comparison** - Table comparing Issues count, PR count, Release status, and health score for each engine
+3. **${primaryDigest.config.name}'s Position** - Advantages vs peers, technical approach differences, community size comparison
+4. **Shared Technical Focus Areas** - Requirements emerging across multiple engines (note which engines, specific needs)
+5. **Differentiation Analysis** - Key differences in storage format, query engine design, target workloads, SQL compatibility
+6. **Community Momentum & Maturity** - Activity tiers, which engines are rapidly iterating, which are stabilizing
+7. **Trend Signals** - Industry trends extracted from community feedback, value for data engineers and architects
 
-Style: concise and professional, data-backed, suited for technical decision-makers and developers.
+Style: concise and professional, data-backed, suited for technical decision-makers and data engineers.
 `;
   }
 
-  return `你是一位专注于 AI 智能体与个人 AI 助手开源生态的资深技术分析师。以下是 ${dateStr} 各开源项目的社区动态摘要。
+  return `你是一位专注于 OLAP 与分析型存储引擎开源生态的资深技术分析师。以下是 ${dateStr} 各开源项目的社区动态摘要。
 
-${openclawSection}
+${primarySection}
 
 ---
 
@@ -315,79 +324,21 @@ ${peerSections}
 
 请基于上述各项目的动态，生成一份横向对比分析报告，包含以下部分：
 
-1. **生态全景** - 用3-5句话概括个人 AI 助手/自主智能体开源生态整体态势
+1. **生态全景** - 用3-5句话概括 OLAP/分析型存储引擎开源生态整体态势
 2. **各项目活跃度对比** - 以表格形式汇总各项目今日的 Issues 数、PR 数、Release 情况及健康度评估
-3. **OpenClaw 在生态中的定位** - 与同类相比的优势、技术路线差异、社区规模对比
+3. **${primaryDigest.config.name} 在生态中的定位** - 与同类相比的优势、技术路线差异、社区规模对比
 4. **共同关注的技术方向** - 多项目共同涌现的需求（注明涉及哪些项目、具体诉求）
-5. **差异化定位分析** - 功能侧重、目标用户、技术架构的关键差异
+5. **差异化定位分析** - 存储格式、查询引擎设计、目标负载类型、SQL 兼容性的关键差异
 6. **社区热度与成熟度** - 活跃度分层，哪些处于快速迭代阶段，哪些在质量巩固阶段
-7. **值得关注的趋势信号** - 从社区反馈中提炼行业趋势，对 AI 智能体开发者的参考价值
+7. **值得关注的趋势信号** - 从社区反馈中提炼行业趋势，对数据工程师和架构师的参考价值
 
-语言要求：简洁专业，有数据支撑，适合技术决策者和开发者阅读。
+语言要求：简洁专业，有数据支撑，适合技术决策者和数据工程师阅读。
 `;
 }
 
-export function buildSkillsPrompt(
-  prs: GitHubItem[],
-  issues: GitHubItem[],
-  dateStr: string,
-  lang: "zh" | "en" = "zh",
-): string {
-  const topPrs = topN(prs, 20);
-  const topIssues = topN(issues, 15);
-
-  const noneStr = lang === "en" ? "None" : "无";
-  const prsText = topPrs.map((p) => formatItem(p, lang)).join("\n") || noneStr;
-  const issuesText = topIssues.map((i) => formatItem(i, lang)).join("\n") || noneStr;
-
-  if (lang === "en") {
-    return `You are a technical analyst focused on the Claude Code ecosystem. The following data is from github.com/anthropics/skills (official Claude Code Skills repository). Analyze the community's most-watched Skills activity (data as of ${dateStr}).
-
-## Repository Context
-anthropics/skills is the official Claude Code Skills collection. Each PR typically represents a new or improved Skill. The community proposes new Skills and reports issues via Issues; PRs represent actual Skill submissions.
-
-## Popular Pull Requests (sorted by comments, ${prs.length} total, showing top ${topPrs.length})
-${prsText}
-
-## Community Issues (sorted by comments, ${issues.length} total, showing top ${topIssues.length})
-${issuesText}
-
----
-
-Generate a Claude Code Skills community highlights report in English with these sections:
-
-1. **Top Skills Ranking** - List the 5-8 most-discussed Skills (PRs) by comments/attention, describe each Skill's functionality, discussion highlights, and current status (open/merged/draft)
-2. **Community Demand Trends** - From Issues, distill the most-anticipated new Skill directions (e.g. workflow automation, code review, test generation, documentation)
-3. **High-Potential Pending Skills** - Active-comment PRs not yet merged; these Skills may land soon
-4. **Skills Ecosystem Insight** - One-sentence summary: what is the community's most concentrated demand at the Skills level?
-
-Style: concise and professional, include GitHub links for each item.
-`;
-  }
-
-  return `你是一位专注于 Claude Code 生态的技术分析师。以下是来自 github.com/anthropics/skills（Claude Code Skills 官方仓库）的数据，请分析社区最关注的 Skills 动态（数据截止 ${dateStr}）。
-
-## 仓库说明
-anthropics/skills 是 Claude Code 官方 Skills 集合仓库，每个 PR 通常对应一个新增或改进的 Skill。社区通过 Issues 提出新 Skill 需求或反馈问题，PR 则代表实际提交的 Skill。
-
-## 热门 Pull Requests（按评论数排序，共 ${prs.length} 条，展示前 ${topPrs.length} 条）
-${prsText}
-
-## 社区 Issues（按评论数排序，共 ${issues.length} 条，展示前 ${topIssues.length} 条）
-${issuesText}
-
----
-
-请生成一份 Claude Code Skills 社区热点报告，包含以下部分：
-
-1. **热门 Skills 排行** - 列出评论/关注度最高的 5~8 个 Skills（PR），说明每个 Skill 的功能、社区讨论热点及当前状态（open/merged/draft）
-2. **社区需求趋势** - 从 Issues 中提炼社区最期待的新 Skill 方向（如工作流自动化、代码审查、测试生成、文档等）
-3. **高潜力待合并 Skills** - 评论活跃但尚未合并的 PR，这些 Skills 可能近期落地
-4. **Skills 生态洞察** - 一句话总结：当前社区在 Skills 层面最集中的诉求是什么
-
-语言要求：简洁专业，每个条目附上 GitHub 链接。
-`;
-}
+// ---------------------------------------------------------------------------
+// Cross-index comparison prompt (dbt, Spark, Substrait…)
+// ---------------------------------------------------------------------------
 
 export function buildComparisonPrompt(
   digests: RepoDigest[],
@@ -405,43 +356,47 @@ export function buildComparisonPrompt(
     .join("\n\n---\n\n");
 
   if (lang === "en") {
-    return `You are a senior technical analyst of the AI developer tools ecosystem. The following are ${dateStr} community digest summaries for each major AI CLI tool:
+    return `You are a senior technical analyst of the OLAP data infrastructure ecosystem. The following are ${dateStr} community digest summaries for key OLAP index projects (dbt, Spark, Substrait, etc.):
 
 ${sections}
 
 ---
 
-Generate a cross-tool comparison report in English with these sections:
+Generate a cross-project comparison report in English with these sections:
 
-1. **Ecosystem Overview** - 3-5 sentences on the overall AI CLI tools development landscape
-2. **Activity Comparison** - Table comparing Issues count, PR count, Release status for each tool today
-3. **Shared Feature Directions** - Requirements appearing across multiple tool communities (note which tools, specific needs)
-4. **Differentiation Analysis** - Differences in feature focus, target users, and technical approach
-5. **Community Momentum & Maturity** - Which tools have more active communities, which are rapidly iterating
-6. **Trend Signals** - Industry trends from community feedback, reference value for developers
+1. **Ecosystem Overview** - 3-5 sentences on the overall OLAP data infrastructure development landscape
+2. **Activity Comparison** - Table comparing Issues count, PR count, Release status for each project today
+3. **Shared Feature Directions** - Requirements appearing across multiple project communities (note which projects, specific needs)
+4. **Differentiation Analysis** - Differences in scope, target users, and technical approach
+5. **Community Momentum & Maturity** - Which projects have more active communities, which are rapidly iterating
+6. **Trend Signals** - Industry trends from community feedback, reference value for data engineers
 
-Style: concise and professional, data-backed, suited for technical decision-makers and developers.
+Style: concise and professional, data-backed, suited for technical decision-makers and data engineers.
 `;
   }
 
-  return `你是一位专注于 AI 开发工具生态的资深技术分析师。以下是 ${dateStr} 各主流 AI CLI 工具的社区动态摘要：
+  return `你是一位专注于 OLAP 数据基础设施生态的资深技术分析师。以下是 ${dateStr} OLAP 生态关键项目（dbt、Spark、Substrait 等）的社区动态摘要：
 
 ${sections}
 
 ---
 
-请基于上述各工具的动态，生成一份横向对比分析报告，包含以下部分：
+请基于上述各项目的动态，生成一份横向对比分析报告，包含以下部分：
 
-1. **生态全景** - 用3-5句话概括当前 AI CLI 工具整体发展态势
-2. **各工具活跃度对比** - 以表格形式汇总各工具今日的 Issues 数、PR 数、Release 情况
-3. **共同关注的功能方向** - 多个工具社区都在关注的需求（说明哪些工具、具体诉求）
-4. **差异化定位分析** - 各工具在功能侧重、目标用户、技术路线上的差异
-5. **社区热度与成熟度** - 哪些工具社区更活跃，哪些处于快速迭代阶段
-6. **值得关注的趋势信号** - 从社区反馈中提炼出的行业趋势，对开发者有何参考价值
+1. **生态全景** - 用3-5句话概括当前 OLAP 数据基础设施整体发展态势
+2. **各项目活跃度对比** - 以表格形式汇总各项目今日的 Issues 数、PR 数、Release 情况
+3. **共同关注的功能方向** - 多个项目社区都在关注的需求（说明哪些项目、具体诉求）
+4. **差异化定位分析** - 各项目在功能侧重、目标用户、技术路线上的差异
+5. **社区热度与成熟度** - 哪些项目社区更活跃，哪些处于快速迭代阶段
+6. **值得关注的趋势信号** - 从社区反馈中提炼出的行业趋势，对数据工程师有何参考价值
 
-语言要求：简洁专业，有数据支撑，适合技术决策者和开发者阅读。
+语言要求：简洁专业，有数据支撑，适合技术决策者和数据工程师阅读。
 `;
 }
+
+// ---------------------------------------------------------------------------
+// GitHub Trending prompt (OLAP/data-infra focused)
+// ---------------------------------------------------------------------------
 
 export function buildTrendingPrompt(data: TrendingData, dateStr: string, lang: "zh" | "en" = "zh"): string {
   const trendingSection =
@@ -478,11 +433,11 @@ export function buildTrendingPrompt(data: TrendingData, dateStr: string, lang: "
         : "（无搜索结果）";
 
   if (lang === "en") {
-    return `You are a technical analyst focused on the AI open-source ecosystem. The following is ${dateStr} GitHub AI-related trending repository data. Please filter for AI relevance, categorize, and analyze trends.
+    return `You are a technical analyst focused on the OLAP and data infrastructure open-source ecosystem. The following is ${dateStr} GitHub data-engineering-related trending repository data. Please filter for OLAP/data relevance, categorize, and analyze trends.
 
 ## Data Sources
 - **Trending List** (github.com/trending, today's stars most reliable): Real-time hot list with today's new stars
-- **Topic Search** (GitHub Search API, topic tags): AI-related projects active in last 7 days, grouped by topic
+- **Topic Search** (GitHub Search API, topic tags): OLAP/data-infra related projects active in last 7 days, grouped by topic
 
 ---
 
@@ -491,25 +446,25 @@ ${trendingSection}
 
 ---
 
-## AI Topic Search Results (${data.searchRepos.length} repositories, deduplicated)
+## Data Infra Topic Search Results (${data.searchRepos.length} repositories, deduplicated)
 ${searchSection}
 
 ---
 
-Generate a structured AI Open Source Trends Report in English:
+Generate a structured OLAP & Data Infrastructure Open Source Trends Report in English:
 
-**Step 1 (Filter)**: From the above data, select projects clearly related to AI/ML (exclude unrelated general tools, frontend frameworks, games, etc.). Skip non-AI trending repos.
+**Step 1 (Filter)**: From the above data, select projects clearly related to OLAP / data infrastructure / analytics (exclude unrelated frontend, games, general utilities). Skip non-data trending repos.
 
 **Step 2 (Categorize)**: Group filtered projects into these categories (a project can belong to multiple; pick the primary one):
-- 🔧 AI Infrastructure (frameworks, SDKs, inference engines, dev tools, CLI)
-- 🤖 AI Agents / Workflows (agent frameworks, automation, multi-agent systems)
-- 📦 AI Applications (specific apps, vertical solutions)
-- 🧠 LLMs / Training (model weights, training frameworks, fine-tuning tools)
-- 🔍 RAG / Knowledge (vector databases, retrieval-augmented generation, knowledge management)
+- 🗄️ OLAP Engines (columnar databases, analytical query engines, MPP systems)
+- 📦 Storage Formats & Lakehouse (table formats, file formats, lakehouse frameworks)
+- ⚙️ Query & Compute (query engines, vectorized execution, query optimization)
+- 🔗 Data Integration & ETL (connectors, pipelines, ingestion tools)
+- 🧰 Data Tooling (monitoring, benchmarking, SQL tools, BI integrations)
 
 **Step 3 (Output Report)** with these sections:
 
-1. **Today's Highlights** — 3-5 sentences on the most noteworthy AI open-source developments today
+1. **Today's Highlights** — 3-5 sentences on the most noteworthy OLAP/data open-source developments today
 
 2. **Top Projects by Category** — For each category, list 3-8 representative projects, each with:
    - Project name (with link)
@@ -517,21 +472,21 @@ Generate a structured AI Open Source Trends Report in English:
    - One sentence: what it is and why it's worth attention today
 
 3. **Trend Signal Analysis** — 200-300 words, distill from today's hot list:
-   - Which type of AI tool is getting explosive community attention?
-   - Any new tech stacks or directions appearing for the first time?
-   - Connection to recent LLM releases / industry events
+   - Which type of data tool is getting explosive community attention?
+   - Any new storage formats, query paradigms, or directions appearing for the first time?
+   - Connection to recent lakehouse / cloud-warehouse developments
 
-4. **Community Hot Spots** — Bullet list of 3-5 specific projects or directions worth developer focus, with brief reasoning
+4. **Community Hot Spots** — Bullet list of 3-5 specific projects or directions worth data engineer focus, with brief reasoning
 
 Style: English, professional and concise, must include GitHub links for every project.
 `;
   }
 
-  return `你是一位专注于 AI 开源生态的技术分析师。以下是 ${dateStr} 的 GitHub AI 相关热门仓库数据，请进行 AI 相关性筛选、分类和趋势分析。
+  return `你是一位专注于 OLAP 与数据基础设施开源生态的技术分析师。以下是 ${dateStr} 的 GitHub 数据工程相关热门仓库数据，请进行 OLAP/数据相关性筛选、分类和趋势分析。
 
 ## 数据说明
 - **Trending 榜单**（github.com/trending，今日 stars 数最可信）：今日实时热榜，含今日新增 stars
-- **主题搜索**（GitHub Search API，topic 标签）：7天内活跃的 AI 相关项目，按主题分类
+- **主题搜索**（GitHub Search API，topic 标签）：7天内活跃的 OLAP/数据基础设施相关项目，按主题分类
 
 ---
 
@@ -540,25 +495,25 @@ ${trendingSection}
 
 ---
 
-## AI 主题搜索结果（共 ${data.searchRepos.length} 个仓库，已去重）
+## 数据基础设施主题搜索结果（共 ${data.searchRepos.length} 个仓库，已去重）
 ${searchSection}
 
 ---
 
-请生成一份结构清晰的《AI 开源趋势日报》，要求：
+请生成一份结构清晰的《OLAP & 数据基础设施开源趋势日报》，要求：
 
-**第一步（过滤）**：从以上数据中筛选出与 AI/ML 明确相关的项目（排除与 AI 无关的通用工具、前端框架、游戏等），对于 Trending 榜单中的非 AI 项目直接略去。
+**第一步（过滤）**：从以上数据中筛选出与 OLAP/数据基础设施/分析引擎明确相关的项目（排除前端框架、游戏、通用工具等），对于 Trending 榜单中的非数据项目直接略去。
 
 **第二步（分类）**：将筛选后的项目按以下维度分类（一个项目可归入多类，优先归入最主要类别）：
-- 🔧 AI 基础工具（框架、SDK、推理引擎、开发工具、CLI）
-- 🤖 AI 智能体/工作流（Agent 框架、自动化、多智能体）
-- 📦 AI 应用（具体应用产品、垂直场景解决方案）
-- 🧠 大模型/训练（模型权重、训练框架、微调工具）
-- 🔍 RAG/知识库（向量数据库、检索增强、知识管理）
+- 🗄️ OLAP 引擎（列式数据库、分析型查询引擎、MPP 系统）
+- 📦 存储格式与湖仓（表格格式、文件格式、湖仓框架）
+- ⚙️ 查询与计算（查询引擎、向量化执行、查询优化）
+- 🔗 数据集成与 ETL（连接器、数据管道、写入工具）
+- 🧰 数据工具（监控、基准测试、SQL 工具、BI 集成）
 
 **第三步（输出报告）**，包含以下部分：
 
-1. **今日速览** — 3~5 句话概括今日 AI 开源领域最值得关注的动向
+1. **今日速览** — 3~5 句话概括今日 OLAP/数据开源领域最值得关注的动向
 
 2. **各维度热门项目** — 每个维度列出 3~8 个代表项目，每项包含：
    - 项目名（附链接）
@@ -566,15 +521,19 @@ ${searchSection}
    - 一句话说明：这个项目是什么，为什么今天值得关注
 
 3. **趋势信号分析** — 200~300 字，从今日热榜中提炼：
-   - 哪类 AI 工具正在获得社区爆发性关注？
-   - 有无新兴技术栈或方向首次登榜？
-   - 与近期大模型发布/行业事件的关联
+   - 哪类数据工具正在获得社区爆发性关注？
+   - 有无新兴存储格式、查询范式或方向首次登榜？
+   - 与近期湖仓/云数仓发展的关联
 
-4. **社区关注热点** — 以 bullet 形式列出 3~5 个值得开发者重点关注的具体项目或方向，给出简短理由
+4. **社区关注热点** — 以 bullet 形式列出 3~5 个值得数据工程师重点关注的具体项目或方向，给出简短理由
 
 语言要求：中文，专业简洁，每个项目必须附 GitHub 链接。
 `;
 }
+
+// ---------------------------------------------------------------------------
+// Web report prompt (kept for optional vendor blog crawl in future)
+// ---------------------------------------------------------------------------
 
 export function buildWebReportPrompt(
   results: WebFetchResult[],
@@ -621,71 +580,61 @@ export function buildWebReportPrompt(
         : "本次为增量更新，请聚焦今日新增内容，并结合上下文判断其战略意义。";
 
   if (lang === "en") {
-    return `You are a deep content analyst focused on AI, skilled at extracting strategic signals from official announcements, technical blogs, research papers, and product documentation.
+    return `You are a deep content analyst focused on the data infrastructure and OLAP ecosystem, skilled at extracting strategic signals from official announcements, technical blogs, research papers, and product documentation.
 
-The following content was crawled on ${dateStr} from Anthropic (claude.com / anthropic.com) and OpenAI (openai.com). ${firstRunNote}
+The following content was crawled on ${dateStr} from data infrastructure vendor sites. ${firstRunNote}
 
 ${siteSections}
 
 ---
 
-Generate a detailed AI Official Content Tracking Report in English with these sections:
+Generate a detailed Official Content Tracking Report in English with these sections:
 
-1. **Today's Highlights** — 3-5 sentences on the most important new releases or developments, calling out key highlights
+1. **Today's Highlights** — 3-5 sentences on the most important new releases or developments
 
-2. **Anthropic / Claude Content Highlights** — Organize important content by category (news / research / engineering / learn, etc.):
+2. **Content Highlights by Vendor** — Organize important content by category (releases / engineering / benchmarks / use cases):
    - For each piece, 2-4 sentences extracting core insights, technical details, or business significance
    - Note publication date and original link
-   - If first full crawl, trace important milestones chronologically
 
-3. **OpenAI Content Highlights** — Same structure, organized by research / release / company / safety categories
+3. **Strategic Signal Analysis** — Based on release cadence and content focus, analyze:
+   - Each vendor's recent technical priorities (query performance / storage / SQL compatibility / ecosystem)
+   - Competitive dynamics and potential impact on data engineers
 
-4. **Strategic Signal Analysis** — Based on both companies' release cadence and content focus, analyze:
-   - Each company's recent technical priorities (model capabilities / safety / productization / ecosystem)
-   - Competitive dynamics: who is setting the agenda, who is following
-   - Potential impact on developers and enterprise users
+4. **Notable Details** — Extract hidden signals from titles, phrasing, and timing
 
-5. **Notable Details** — Extract hidden signals from titles, phrasing, and timing, e.g.:
-   - New terms or topics appearing for the first time
-   - Dense releases in a category (may signal a product milestone)
-   - Policy, compliance, and safety developments
-
-${isAnyFirstRun ? "6. **Content Landscape Overview** — First full crawl only: summarize the content category distribution for both companies and describe their content strategy style (academic-oriented vs product-oriented vs user stories, etc.)\n\n" : ""}Style: English, professional and detailed, suited for AI researchers, product managers, and technical decision-makers. Every item must include official links.
+${isAnyFirstRun ? "5. **Content Landscape Overview** — First full crawl only: summarize the content category distribution and content strategy style\n\n" : ""}Style: English, professional and detailed, suited for data engineers, architects, and technical decision-makers.
 `;
   }
 
-  return `你是一位专注于 AI 领域的深度内容分析师，擅长从官方公告、技术博客、研究论文和产品文档中提炼战略信号。
+  return `你是一位专注于数据基础设施与 OLAP 生态的深度内容分析师，擅长从官方公告、技术博客、研究论文和产品文档中提炼战略信号。
 
-以下是 ${dateStr} 从 Anthropic（claude.com / anthropic.com）和 OpenAI（openai.com）官网抓取的内容，${firstRunNote}
+以下是 ${dateStr} 从数据基础设施厂商官网抓取的内容，${firstRunNote}
 
 ${siteSections}
 
 ---
 
-请生成一份详实的《AI 官方内容追踪报告》，包含以下部分：
+请生成一份详实的《OLAP 官方内容追踪报告》，包含以下部分：
 
-1. **今日速览** — 3~5 句话概括最重要的新发布或动向，点出核心亮点
+1. **今日速览** — 3~5 句话概括最重要的新发布或动向
 
-2. **Anthropic / Claude 内容精选** — 按分类（news / research / engineering / learn 等）逐条整理重要内容：
-   - 每篇用 2~4 句话提炼核心观点、技术细节或业务意义
+2. **各厂商内容精选** — 按分类（releases / engineering / benchmarks / use cases 等）逐条整理：
+   - 每篇用2~4句话提炼核心观点、技术细节或业务意义
    - 标注发布日期和原文链接
-   - 如首次全量，按时间线梳理重要里程碑
 
-3. **OpenAI 内容精选** — 同上，按 research / release / company / safety 等分类整理
+3. **战略信号解读** — 基于发布节奏和内容重点，分析：
+   - 各厂商近期技术优先级（查询性能 / 存储 / SQL 兼容性 / 生态）
+   - 竞争态势与对数据工程师的潜在影响
 
-4. **战略信号解读** — 基于两家公司的发布节奏和内容重点，分析：
-   - 各自近期的技术优先级（模型能力 / 安全 / 产品化 / 生态）
-   - 竞争态势：谁在引领议题，谁在跟进
-   - 对开发者和企业用户的潜在影响
+4. **值得关注的细节** — 从标题、措辞、发布时机中提取隐含信号
 
-5. **值得关注的细节** — 从标题、措辞、发布时机中提取隐含信号，例如：
-   - 新兴词汇或话题的首次出现
-   - 某类主题的密集发布（可能预示产品节点）
-   - 政策、合规、安全方面的动向
-
-${isAnyFirstRun ? "6. **内容格局总览** — 首次全量独有：汇总两家公司各内容类别的数量分布，并说明各自的内容运营风格（学术导向 vs 产品导向 vs 用户故事等）\n\n" : ""}语言要求：中文，专业深入，内容详实，适合 AI 领域研究者、产品经理和技术决策者阅读。每个条目必须附上 GitHub/官网链接。
+${isAnyFirstRun ? "5. **内容格局总览** — 首次全量独有：汇总各厂商内容类别分布并说明内容运营风格\n\n" : ""}语言要求：中文，专业深入，适合数据工程师、架构师和技术决策者阅读。
 `;
 }
+
+// ---------------------------------------------------------------------------
+// Weekly digest prompt
+// ---------------------------------------------------------------------------
 
 export function buildWeeklyPrompt(
   dailyDigests: Record<string, string>,
@@ -697,45 +646,47 @@ export function buildWeeklyPrompt(
     .join("\n\n---\n\n");
 
   if (lang === "en") {
-    return `You are a technical analyst focused on the AI open-source ecosystem. The following are daily digest summaries from the past 7 days (${weekStr}) of AI tool community activity. Generate a comprehensive weekly recap.
+    return `You are a technical analyst focused on the OLAP and data infrastructure open-source ecosystem. The following are daily digest summaries from the past 7 days (${weekStr}) of OLAP engine and data tooling community activity. Generate a comprehensive weekly recap.
 
 ${digestEntries}
 
 ---
 
-Generate an AI Tools Ecosystem Weekly Report with these sections:
+Generate an OLAP Ecosystem Weekly Report with these sections:
 
 1. **Week's Top Stories** - 5-8 most important events, releases, and community developments this week, each with date
-2. **CLI Tools Progress** - Overall activity and key changes for each AI CLI tool (Claude Code, Codex, Gemini CLI, etc.)
-3. **AI Agent Ecosystem** - Key developments from OpenClaw and peer projects this week
-4. **Open Source Trends** - Most notable technical directions from GitHub Trending and AI community this week
-5. **HN Community Highlights** - Core AI discussion topics and community sentiment on Hacker News this week
-6. **Official Announcements** - Important content published by Anthropic and OpenAI this week (if any)
-7. **Next Week's Signals** - Based on this week's data, predict trends and upcoming events worth watching
+2. **Primary Engine Progress** - Key developments from Apache Doris this week
+3. **OLAP Engine Ecosystem** - Notable changes from peer engines (ClickHouse, DuckDB, StarRocks, etc.)
+4. **Data Infra Trends** - Most notable technical directions from GitHub Trending and OLAP community this week
+5. **HN Community Highlights** - Core data engineering discussion topics and community sentiment on Hacker News this week
+6. **Next Week's Signals** - Based on this week's data, predict trends and upcoming events worth watching
 
-Style: English, concise and professional, helping technical developers quickly grasp the week's developments.
+Style: English, concise and professional, helping data engineers quickly grasp the week's developments.
 `;
   }
 
-  return `你是一位专注于 AI 开源生态的技术分析师。以下是过去 7 天（${weekStr}）的 AI 工具社区每日动态摘要，请生成本周综合回顾报告。
+  return `你是一位专注于 OLAP 与数据基础设施开源生态的技术分析师。以下是过去 7 天（${weekStr}）的 OLAP 引擎和数据工具社区每日动态摘要，请生成本周综合回顾报告。
 
 ${digestEntries}
 
 ---
 
-请生成《AI 工具生态周报》，包含以下部分：
+请生成《OLAP 生态周报》，包含以下部分：
 
 1. **本周要闻** - 5-8 条本周最重要的事件、版本发布、社区动向，每条附日期
-2. **CLI 工具进展** - 各 AI CLI 工具（Claude Code、Codex、Gemini CLI 等）本周整体动态与关键变化
-3. **AI Agent 生态** - OpenClaw 及同赛道项目的本周重要进展
-4. **开源趋势** - 本周 GitHub Trending 和 AI 社区最关注的技术方向
-5. **HN 社区热议** - 本周 Hacker News AI 讨论的核心话题与社区情绪
-6. **官方动态** - Anthropic 和 OpenAI 本周发布的重要内容（若有）
-7. **下周信号** - 基于本周数据，预判值得关注的趋势或即将到来的事件
+2. **核心引擎进展** - Apache Doris 本周重要进展与关键变化
+3. **OLAP 引擎生态** - 同赛道引擎（ClickHouse、DuckDB、StarRocks 等）的本周重要进展
+4. **数据基础设施趋势** - 本周 GitHub Trending 和 OLAP 社区最关注的技术方向
+5. **HN 社区热议** - 本周 Hacker News 数据工程讨论的核心话题与社区情绪
+6. **下周信号** - 基于本周数据，预判值得关注的趋势或即将到来的事件
 
-语言要求：中文，简洁专业，适合技术开发者快速掌握一周动态。
+语言要求：中文，简洁专业，适合数据工程师快速掌握一周动态。
 `;
 }
+
+// ---------------------------------------------------------------------------
+// Monthly digest prompt
+// ---------------------------------------------------------------------------
 
 export function buildMonthlyPrompt(
   sourceDigests: Record<string, string>,
@@ -747,45 +698,47 @@ export function buildMonthlyPrompt(
     .join("\n\n---\n\n");
 
   if (lang === "en") {
-    return `You are a technical analyst focused on the AI open-source ecosystem. The following are ${monthStr} AI tool community digest summaries (${Object.keys(sourceDigests).length} reports total). Generate a comprehensive monthly review.
+    return `You are a technical analyst focused on the OLAP and data infrastructure open-source ecosystem. The following are ${monthStr} OLAP community digest summaries (${Object.keys(sourceDigests).length} reports total). Generate a comprehensive monthly review.
 
 ${digestEntries}
 
 ---
 
-Generate an AI Tools Ecosystem Monthly Report with these sections:
+Generate an OLAP Ecosystem Monthly Report with these sections:
 
 1. **Month's Top Stories** - 5-10 most important events and milestones this month, in chronological order
-2. **CLI Tools Monthly Progress** - Overall development trajectory, major releases, and community growth for each key AI CLI tool
-3. **AI Agent Ecosystem Monthly Review** - Ecosystem landscape shifts, emerging projects, notable signals this month
-4. **Technical Trend Summary** - Most significant technical directions and paradigm shifts in AI open-source this month
-5. **Community Health Assessment** - Monthly activity comparison across major projects, developer engagement evaluation
-6. **Official Announcements Review** - Strategic analysis of Anthropic and OpenAI content published this month
-7. **Next Month's Outlook** - Based on this month's trends, predict key directions and potential events to watch
+2. **Primary Engine Monthly Progress** - Apache Doris: overall development trajectory, major releases, and community growth
+3. **OLAP Engine Ecosystem Monthly Review** - Ecosystem landscape shifts, emerging engines, notable signals this month
+4. **Technical Trend Summary** - Most significant technical directions and paradigm shifts in OLAP open-source this month
+5. **Community Health Assessment** - Monthly activity comparison across major engines, developer engagement evaluation
+6. **Next Month's Outlook** - Based on this month's trends, predict key directions and potential events to watch
 
 Style: English, in-depth analysis, data-driven, suited for monthly retrospectives and strategic decision-making.
 `;
   }
 
-  return `你是一位专注于 AI 开源生态的技术分析师。以下是 ${monthStr} 月的 AI 工具社区动态汇总（共 ${Object.keys(sourceDigests).length} 份报告），请生成本月综合回顾报告。
+  return `你是一位专注于 OLAP 与数据基础设施开源生态的技术分析师。以下是 ${monthStr} 月的 OLAP 社区动态汇总（共 ${Object.keys(sourceDigests).length} 份报告），请生成本月综合回顾报告。
 
 ${digestEntries}
 
 ---
 
-请生成《AI 工具生态月报》，包含以下部分：
+请生成《OLAP 生态月报》，包含以下部分：
 
 1. **月度要闻** - 本月最重要的 5-10 条事件和里程碑，按时间排列
-2. **CLI 工具月度进展** - 各主要 AI CLI 工具本月整体发展轨迹、重要版本、社区规模变化
-3. **AI Agent 生态月报** - 本月生态格局变化、新兴项目、值得关注的信号
-4. **技术趋势总结** - 本月 AI 开源领域最显著的技术方向与范式变化
-5. **社区生态健康度** - 各主要项目月度活跃度对比、开发者参与度评估
-6. **官方动态回顾** - Anthropic 和 OpenAI 本月发布内容的战略意义分析
-7. **下月展望** - 基于本月趋势，预判值得重点关注的方向和潜在事件
+2. **核心引擎月度进展** - Apache Doris 本月整体发展轨迹、重要版本、社区规模变化
+3. **OLAP 引擎生态月报** - 本月生态格局变化、新兴引擎、值得关注的信号
+4. **技术趋势总结** - 本月 OLAP 开源领域最显著的技术方向与范式变化
+5. **社区生态健康度** - 各主要引擎月度活跃度对比、开发者参与度评估
+6. **下月展望** - 基于本月趋势，预判值得重点关注的方向和潜在事件
 
 语言要求：中文，深度分析，数据驱动，适合月度复盘和战略决策参考。
 `;
 }
+
+// ---------------------------------------------------------------------------
+// Hacker News prompt (data-infra focused filter)
+// ---------------------------------------------------------------------------
 
 export function buildHnPrompt(data: HnData, dateStr: string, lang: "zh" | "en" = "zh"): string {
   const storiesText = data.stories
@@ -794,7 +747,7 @@ export function buildHnPrompt(data: HnData, dateStr: string, lang: "zh" | "en" =
         ? `${i + 1}. **${s.title}**\n` +
           `   Link: ${s.url}\n` +
           `   Discussion: ${s.hnUrl}\n` +
-          `   Score: ${s.points} | Comments: ${s.comments} | Author: @${s.author} | 时间: ${s.createdAt.slice(0, 16)}`
+          `   Score: ${s.points} | Comments: ${s.comments} | Author: @${s.author} | Time: ${s.createdAt.slice(0, 16)}`
         : `${i + 1}. **${s.title}**\n` +
           `   链接: ${s.url}\n` +
           `   讨论: ${s.hnUrl}\n` +
@@ -803,7 +756,7 @@ export function buildHnPrompt(data: HnData, dateStr: string, lang: "zh" | "en" =
     .join("\n\n");
 
   if (lang === "en") {
-    return `You are an AI industry news analyst. The following are AI-related top posts from Hacker News in the past 24 hours as of ${dateStr} (sorted by score, ${data.stories.length} total):
+    return `You are a data infrastructure and OLAP industry news analyst. The following are data-engineering-related top posts from Hacker News in the past 24 hours as of ${dateStr} (sorted by score, ${data.stories.length} total):
 
 ---
 
@@ -811,9 +764,9 @@ ${storiesText}
 
 ---
 
-Generate a structured Hacker News AI Community Digest in English:
+Generate a structured Hacker News Data Infrastructure Community Digest in English:
 
-1. **Today's Highlights** — 3-5 sentences on the hottest AI discussion topics and community sentiment on HN today
+1. **Today's Highlights** — 3-5 sentences on the hottest data engineering / OLAP discussion topics and community sentiment on HN today
 
 2. **Top News & Discussions** — Organized by category, select the 2-5 most representative items per category, each with:
    - Title (with original link) + HN discussion link
@@ -821,23 +774,23 @@ Generate a structured Hacker News AI Community Digest in English:
    - One sentence: why this matters, what the community's typical reaction is
 
    Categories:
-   - 🔬 Models & Research (new model releases, papers, benchmarks)
-   - 🛠️ Tools & Engineering (open-source projects, frameworks, engineering practices)
+   - 🗄️ Databases & OLAP (new releases, query engines, storage formats)
+   - ⚙️ Data Engineering (pipelines, ETL, orchestration, lakehouse)
    - 🏢 Industry News (company news, funding, product launches)
    - 💬 Opinions & Debates (notable Ask HN, Show HN, or hot discussion threads)
 
-3. **Community Sentiment Signal** — 100-200 words analyzing today's HN AI discussion mood and focus:
+3. **Community Sentiment Signal** — 100-200 words analyzing today's HN data-infra discussion mood and focus:
    - Which topics are most active (high score + high comments)?
    - Any clear points of controversy or consensus?
    - Compared to last cycle, any notable shift in focus?
 
-4. **Worth Deep Reading** — List 2-3 pieces most worth developers/researchers reading in depth, with brief reasoning
+4. **Worth Deep Reading** — List 2-3 pieces most worth data engineers/architects reading in depth, with brief reasoning
 
 Style: English, concise and professional, preserve all original links.
 `;
   }
 
-  return `你是 AI 行业资讯分析师。以下是 ${dateStr} 从 Hacker News 抓取的过去 24 小时内 AI 相关热门帖子（按分数降序，共 ${data.stories.length} 条）：
+  return `你是数据基础设施与 OLAP 行业资讯分析师。以下是 ${dateStr} 从 Hacker News 抓取的过去 24 小时内数据工程相关热门帖子（按分数降序，共 ${data.stories.length} 条）：
 
 ---
 
@@ -845,9 +798,9 @@ ${storiesText}
 
 ---
 
-请生成一份结构清晰的《Hacker News AI 社区动态日报》，要求：
+请生成一份结构清晰的《Hacker News 数据基础设施社区动态日报》，要求：
 
-1. **今日速览** — 3~5 句话，概括今日 HN 社区围绕 AI 最热门的讨论方向和情绪
+1. **今日速览** — 3~5 句话，概括今日 HN 社区围绕数据工程/OLAP 最热门的讨论方向和情绪
 
 2. **热门新闻与讨论** — 按以下分类整理，每类选取最具代表性的 2~5 条，每条包含：
    - 标题（附原文链接）+ HN 讨论链接
@@ -855,17 +808,17 @@ ${storiesText}
    - 一句话说明：这条内容为什么值得关注，社区有何典型反应
 
    分类：
-   - 🔬 模型与研究（新模型发布、论文、基准测试）
-   - 🛠️ 工具与工程（开源项目、框架、工程实践）
+   - 🗄️ 数据库与 OLAP（新版本发布、查询引擎、存储格式）
+   - ⚙️ 数据工程（数据管道、ETL、编排、湖仓）
    - 🏢 产业动态（公司新闻、融资、产品发布）
    - 💬 观点与争议（值得关注的 Ask HN、Show HN 或热议帖子）
 
-3. **社区情绪信号** — 100~200 字，分析今日 HN AI 讨论的整体情绪和关注重点：
+3. **社区情绪信号** — 100~200 字，分析今日 HN 数据基础设施讨论的整体情绪和关注重点：
    - 社区对哪类话题最活跃（高分 + 高评论）？
    - 有无明显的争议点或共识？
    - 与上周期相比，关注方向有无明显变化？
 
-4. **值得深读** — 列出 2~3 条今日最值得开发者/研究者深入阅读的内容，简述理由
+4. **值得深读** — 列出 2~3 条今日最值得数据工程师/架构师深入阅读的内容，简述理由
 
 语言要求：中文，简洁专业，保留所有原文链接。
 `;

@@ -1,5 +1,5 @@
 /**
- * Loads and validates agents-radar configuration from config.yml.
+ * Loads and validates olap-radar configuration from config.yml.
  * Falls back to built-in defaults if the file is missing or a section is absent.
  */
 
@@ -20,53 +20,44 @@ interface RawRepoEntry {
 }
 
 interface RawConfig {
-  cli_repos?: RawRepoEntry[];
-  skills_repo?: string;
-  openclaw?: RawRepoEntry;
-  openclaw_peers?: RawRepoEntry[];
+  index_repos?: RawRepoEntry[];
+  primary_repo?: RawRepoEntry;
+  peer_repos?: RawRepoEntry[];
 }
 
 export interface RadarConfig {
-  cliRepos: RepoConfig[];
-  skillsRepo: string;
-  openclaw: RepoConfig;
-  openclawPeers: RepoConfig[];
+  indexRepos: RepoConfig[];
+  primaryRepo: RepoConfig;
+  peerRepos: RepoConfig[];
 }
 
 // ---------------------------------------------------------------------------
 // Defaults (mirrors the original hard-coded values)
 // ---------------------------------------------------------------------------
 
-const DEFAULT_CLI_REPOS: RepoConfig[] = [
-  { id: "claude-code", repo: "anthropics/claude-code", name: "Claude Code" },
-  { id: "codex", repo: "openai/codex", name: "OpenAI Codex" },
-  { id: "gemini-cli", repo: "google-gemini/gemini-cli", name: "Gemini CLI" },
-  { id: "copilot-cli", repo: "github/copilot-cli", name: "GitHub Copilot CLI" },
-  { id: "kimi-cli", repo: "MoonshotAI/kimi-cli", name: "Kimi Code CLI" },
-  { id: "opencode", repo: "anomalyco/opencode", name: "OpenCode" },
-  { id: "qwen-code", repo: "QwenLM/qwen-code", name: "Qwen Code" },
+const DEFAULT_INDEX_REPOS: RepoConfig[] = [
+  { id: "dbt-core", repo: "dbt-labs/dbt-core", name: "dbt-core" },
+  { id: "apache-spark", repo: "apache/spark", name: "Apache Spark", paginated: true },
+  { id: "substrait", repo: "substrait-io/substrait", name: "Substrait" },
 ];
 
-const DEFAULT_SKILLS_REPO = "anthropics/skills";
-
-const DEFAULT_OPENCLAW: RepoConfig = {
-  id: "openclaw",
-  repo: "openclaw/openclaw",
-  name: "OpenClaw",
+const DEFAULT_PRIMARY_REPO: RepoConfig = {
+  id: "doris",
+  repo: "apache/doris",
+  name: "Apache Doris",
   paginated: true,
 };
 
-const DEFAULT_OPENCLAW_PEERS: RepoConfig[] = [
-  { id: "nanobot", repo: "HKUDS/nanobot", name: "NanoBot", paginated: true },
-  { id: "zeroclaw", repo: "zeroclaw-labs/zeroclaw", name: "Zeroclaw" },
-  { id: "picoclaw", repo: "sipeed/picoclaw", name: "PicoClaw", paginated: true },
-  { id: "nanoclaw", repo: "qwibitai/nanoclaw", name: "NanoClaw" },
-  { id: "ironclaw", repo: "nearai/ironclaw", name: "IronClaw" },
-  { id: "lobsterai", repo: "netease-youdao/LobsterAI", name: "LobsterAI" },
-  { id: "tinyclaw", repo: "TinyAGI/tinyclaw", name: "TinyClaw" },
-  { id: "copaw", repo: "agentscope-ai/CoPaw", name: "CoPaw" },
-  { id: "zeptoclaw", repo: "qhkm/zeptoclaw", name: "ZeptoClaw" },
-  { id: "easyclaw", repo: "gaoyangz77/easyclaw", name: "EasyClaw" },
+const DEFAULT_PEER_REPOS: RepoConfig[] = [
+  { id: "clickhouse", repo: "ClickHouse/ClickHouse", name: "ClickHouse", paginated: true },
+  { id: "duckdb", repo: "duckdb/duckdb", name: "DuckDB", paginated: true },
+  { id: "starrocks", repo: "StarRocks/StarRocks", name: "StarRocks", paginated: true },
+  { id: "apache-iceberg", repo: "apache/iceberg", name: "Apache Iceberg" },
+  { id: "delta-io", repo: "delta-io/delta", name: "Delta Lake" },
+  { id: "databend", repo: "databendlabs/databend", name: "Databend" },
+  { id: "velox", repo: "facebookincubator/velox", name: "Velox" },
+  { id: "gluten", repo: "apache/incubator-gluten", name: "Apache Gluten" },
+  { id: "apache-arrow", repo: "apache/arrow", name: "Apache Arrow" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -83,36 +74,31 @@ export function loadConfig(configPath = "config.yml"): RadarConfig {
   if (!fs.existsSync(resolved)) {
     console.log(`[config] ${configPath} not found — using built-in defaults.`);
     return {
-      cliRepos: DEFAULT_CLI_REPOS,
-      skillsRepo: DEFAULT_SKILLS_REPO,
-      openclaw: DEFAULT_OPENCLAW,
-      openclawPeers: DEFAULT_OPENCLAW_PEERS,
+      indexRepos: DEFAULT_INDEX_REPOS,
+      primaryRepo: DEFAULT_PRIMARY_REPO,
+      peerRepos: DEFAULT_PEER_REPOS,
     };
   }
 
   const raw = yaml.load(fs.readFileSync(resolved, "utf-8")) as RawConfig;
 
-  const cliRepos =
-    Array.isArray(raw?.cli_repos) && raw.cli_repos.length > 0
-      ? raw.cli_repos.map(toRepoConfig)
-      : DEFAULT_CLI_REPOS;
+  const indexRepos =
+    Array.isArray(raw?.index_repos) && raw.index_repos.length > 0
+      ? raw.index_repos.map(toRepoConfig)
+      : DEFAULT_INDEX_REPOS;
 
-  const skillsRepo =
-    typeof raw?.skills_repo === "string" && raw.skills_repo.trim()
-      ? raw.skills_repo.trim()
-      : DEFAULT_SKILLS_REPO;
+  const primaryRepo =
+    raw?.primary_repo?.id && raw.primary_repo.repo ? toRepoConfig(raw.primary_repo) : DEFAULT_PRIMARY_REPO;
 
-  const openclaw = raw?.openclaw?.id && raw.openclaw.repo ? toRepoConfig(raw.openclaw) : DEFAULT_OPENCLAW;
-
-  const openclawPeers =
-    Array.isArray(raw?.openclaw_peers) && raw.openclaw_peers.length > 0
-      ? raw.openclaw_peers.map(toRepoConfig)
-      : DEFAULT_OPENCLAW_PEERS;
+  const peerRepos =
+    Array.isArray(raw?.peer_repos) && raw.peer_repos.length > 0
+      ? raw.peer_repos.map(toRepoConfig)
+      : DEFAULT_PEER_REPOS;
 
   console.log(
     `[config] Loaded from ${configPath}: ` +
-      `${cliRepos.length} CLI repos, ${openclawPeers.length} OpenClaw peers`,
+      `${indexRepos.length} index repos, ${peerRepos.length} peer engines`,
   );
 
-  return { cliRepos, skillsRepo, openclaw, openclawPeers };
+  return { indexRepos, primaryRepo, peerRepos };
 }

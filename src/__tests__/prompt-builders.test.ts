@@ -1,10 +1,9 @@
 import { describe, it, expect } from "vitest";
 import {
-  buildCliPrompt,
+  buildIndexPrompt,
   buildPeerPrompt,
   buildComparisonPrompt,
   buildPeersComparisonPrompt,
-  buildSkillsPrompt,
   buildTrendingPrompt,
   buildWebReportPrompt,
   buildWeeklyPrompt,
@@ -21,7 +20,7 @@ import type { WebFetchResult } from "../web.ts";
 // Fixtures
 // ---------------------------------------------------------------------------
 
-const cfg: RepoConfig = { id: "test", repo: "org/test", name: "TestTool" };
+const cfg: RepoConfig = { id: "doris", repo: "apache/doris", name: "Apache Doris" };
 
 function makeItem(overrides: Partial<GitHubItem> = {}): GitHubItem {
   return {
@@ -35,7 +34,7 @@ function makeItem(overrides: Partial<GitHubItem> = {}): GitHubItem {
     comments: 5,
     reactions: { "+1": 2 },
     body: "body",
-    html_url: "https://github.com/org/test/issues/1",
+    html_url: "https://github.com/apache/doris/issues/1",
     ...overrides,
   };
 }
@@ -52,34 +51,34 @@ function makeDigest(overrides: Partial<RepoDigest> = {}): RepoDigest {
 }
 
 // ---------------------------------------------------------------------------
-// buildCliPrompt
+// buildIndexPrompt
 // ---------------------------------------------------------------------------
 
-describe("buildCliPrompt", () => {
+describe("buildIndexPrompt", () => {
   it("generates Chinese prompt by default", () => {
-    const result = buildCliPrompt(cfg, [makeItem()], [makeItem()], [release], "2026-03-09");
+    const result = buildIndexPrompt(cfg, [makeItem()], [makeItem()], [release], "2026-03-09");
     expect(result).toContain("技术分析师");
-    expect(result).toContain("TestTool");
+    expect(result).toContain("Apache Doris");
     expect(result).toContain("2026-03-09");
-    expect(result).toContain("org/test");
+    expect(result).toContain("apache/doris");
     expect(result).toContain("v1.0.0");
   });
 
   it("generates English prompt", () => {
-    const result = buildCliPrompt(cfg, [makeItem()], [], [], "2026-03-09", "en");
+    const result = buildIndexPrompt(cfg, [makeItem()], [], [], "2026-03-09", "en");
     expect(result).toContain("technical analyst");
-    expect(result).toContain("TestTool");
+    expect(result).toContain("Apache Doris");
     expect(result).toContain("Hot Issues");
   });
 
   it("shows 无 when no data", () => {
-    const result = buildCliPrompt(cfg, [], [], [], "2026-03-09");
+    const result = buildIndexPrompt(cfg, [], [], [], "2026-03-09");
     expect(result).toContain("无");
   });
 
   it("includes sample notes when items exceed limit", () => {
     const items = Array.from({ length: 50 }, (_, i) => makeItem({ number: i, comments: i }));
-    const result = buildCliPrompt(cfg, items, [], [], "2026-03-09");
+    const result = buildIndexPrompt(cfg, items, [], [], "2026-03-09");
     expect(result).toContain("共 50 条");
     expect(result).toContain("30 条");
   });
@@ -112,13 +111,13 @@ describe("buildPeerPrompt", () => {
 describe("buildComparisonPrompt", () => {
   it("includes all digest summaries when they have data", () => {
     const digests = [
-      makeDigest({ config: { ...cfg, name: "Tool A" }, summary: "Summary A", issues: [makeItem()] }),
-      makeDigest({ config: { ...cfg, name: "Tool B" }, summary: "Summary B", prs: [makeItem()] }),
+      makeDigest({ config: { ...cfg, name: "DuckDB" }, summary: "Summary A", issues: [makeItem()] }),
+      makeDigest({ config: { ...cfg, name: "ClickHouse" }, summary: "Summary B", prs: [makeItem()] }),
     ];
     const result = buildComparisonPrompt(digests, "2026-03-09");
-    expect(result).toContain("Tool A");
+    expect(result).toContain("DuckDB");
     expect(result).toContain("Summary A");
-    expect(result).toContain("Tool B");
+    expect(result).toContain("ClickHouse");
     expect(result).toContain("Summary B");
   });
 
@@ -134,36 +133,22 @@ describe("buildComparisonPrompt", () => {
 // ---------------------------------------------------------------------------
 
 describe("buildPeersComparisonPrompt", () => {
-  it("includes openclaw and peer sections", () => {
-    const openclawDigest = makeDigest({
-      config: { id: "openclaw", repo: "openclaw/openclaw", name: "OpenClaw" },
-      summary: "OC summary",
+  it("includes primary engine and peer sections", () => {
+    const primaryDigest = makeDigest({
+      config: { id: "doris", repo: "apache/doris", name: "Apache Doris" },
+      summary: "Doris summary",
     });
     const peerDigests = [
-      makeDigest({ config: { ...cfg, name: "Peer" }, summary: "Peer summary", issues: [makeItem()] }),
+      makeDigest({
+        config: { ...cfg, name: "ClickHouse" },
+        summary: "CH summary",
+        issues: [makeItem()],
+      }),
     ];
-    const result = buildPeersComparisonPrompt(openclawDigest, peerDigests, "2026-03-09");
-    expect(result).toContain("OpenClaw（核心参照");
-    expect(result).toContain("OC summary");
-    expect(result).toContain("Peer summary");
-  });
-});
-
-// ---------------------------------------------------------------------------
-// buildSkillsPrompt
-// ---------------------------------------------------------------------------
-
-describe("buildSkillsPrompt", () => {
-  it("includes skills repository context", () => {
-    const result = buildSkillsPrompt([makeItem()], [makeItem()], "2026-03-09");
-    expect(result).toContain("anthropics/skills");
-    expect(result).toContain("Claude Code Skills");
-  });
-
-  it("generates English variant", () => {
-    const result = buildSkillsPrompt([], [], "2026-03-09", "en");
-    expect(result).toContain("Claude Code ecosystem");
-    expect(result).toContain("None");
+    const result = buildPeersComparisonPrompt(primaryDigest, peerDigests, "2026-03-09");
+    expect(result).toContain("Apache Doris（核心参照");
+    expect(result).toContain("Doris summary");
+    expect(result).toContain("CH summary");
   });
 });
 
@@ -176,21 +161,21 @@ describe("buildTrendingPrompt", () => {
     const data: TrendingData = {
       trendingRepos: [
         {
-          fullName: "org/repo",
-          description: "desc",
-          language: "Python",
+          fullName: "duckdb/duckdb",
+          description: "DuckDB analytical database",
+          language: "C++",
           todayStars: 100,
           totalStars: 5000,
           forks: 200,
-          url: "https://github.com/org/repo",
+          url: "https://github.com/duckdb/duckdb",
         },
       ],
       searchRepos: [],
       trendingFetchSuccess: true,
     };
     const result = buildTrendingPrompt(data, "2026-03-09");
-    expect(result).toContain("org/repo");
-    expect(result).toContain("Python");
+    expect(result).toContain("duckdb/duckdb");
+    expect(result).toContain("C++");
     expect(result).toContain("5,000");
     expect(result).toContain("+100 today");
   });
@@ -206,19 +191,19 @@ describe("buildTrendingPrompt", () => {
       trendingRepos: [],
       searchRepos: [
         {
-          fullName: "ai/agent",
-          description: "An AI agent",
-          language: "TypeScript",
+          fullName: "apache/iceberg",
+          description: "Apache Iceberg table format",
+          language: "Java",
           stargazersCount: 1000,
           pushedAt: "2026-03-08",
-          url: "https://github.com/ai/agent",
-          searchQuery: "ai-agent",
+          url: "https://github.com/apache/iceberg",
+          searchQuery: "olap",
         },
       ],
       trendingFetchSuccess: false,
     };
     const result = buildTrendingPrompt(data, "2026-03-09");
-    expect(result).toContain("[topic:ai-agent]");
+    expect(result).toContain("[topic:olap]");
     expect(result).toContain("1,000");
   });
 });
@@ -312,8 +297,8 @@ describe("buildHnPrompt", () => {
       stories: [
         {
           id: "123",
-          title: "AI News",
-          url: "https://example.com/ai",
+          title: "DuckDB new release",
+          url: "https://example.com/duckdb",
           hnUrl: "https://news.ycombinator.com/item?id=123",
           points: 200,
           comments: 50,
@@ -324,7 +309,7 @@ describe("buildHnPrompt", () => {
       fetchSuccess: true,
     };
     const result = buildHnPrompt(data, "2026-03-09");
-    expect(result).toContain("AI News");
+    expect(result).toContain("DuckDB new release");
     expect(result).toContain("分数: 200");
     expect(result).toContain("评论: 50");
     expect(result).toContain("@bob");

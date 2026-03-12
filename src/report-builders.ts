@@ -6,55 +6,43 @@ import type { RepoConfig, RepoFetch } from "./github.ts";
 import type { RepoDigest } from "./prompts.ts";
 
 // ---------------------------------------------------------------------------
-// CLI Report
+// Index Report (broad OLAP ecosystem: dbt, Spark, Substrait…)
 // ---------------------------------------------------------------------------
 
-export function buildCliReportContent(
-  cliDigests: RepoDigest[],
-  skillsSummary: string,
+export function buildIndexReportContent(
+  indexDigests: RepoDigest[],
   comparison: string,
   utcStr: string,
   dateStr: string,
   footer: string,
-  skillsRepo: string,
   lang: "zh" | "en" = "zh",
 ): string {
-  const repoLinks =
-    cliDigests.map((d) => `- [${d.config.name}](https://github.com/${d.config.repo})`).join("\n") +
-    `\n- [Claude Code Skills](https://github.com/${skillsRepo})`;
+  const repoLinks = indexDigests
+    .map((d) => `- [${d.config.name}](https://github.com/${d.config.repo})`)
+    .join("\n");
 
   const t =
     lang === "en"
       ? {
-          title: `# AI CLI Tools Community Digest ${dateStr}\n\n`,
-          meta: `> Generated: ${utcStr} UTC | Tools covered: ${cliDigests.length}\n\n`,
-          skillsHeading: `## Claude Code Skills Highlights`,
-          skillsSource: `Source`,
-          comparison: `## Cross-Tool Comparison\n\n`,
-          detail: `## Per-Tool Reports\n\n`,
+          title: `# OLAP Ecosystem Index Digest ${dateStr}\n\n`,
+          meta: `> Generated: ${utcStr} UTC | Projects covered: ${indexDigests.length}\n\n`,
+          comparison: `## Cross-Project Comparison\n\n`,
+          detail: `## Per-Project Reports\n\n`,
         }
       : {
-          title: `# AI CLI 工具社区动态日报 ${dateStr}\n\n`,
-          meta: `> 生成时间: ${utcStr} UTC | 覆盖工具: ${cliDigests.length} 个\n\n`,
-          skillsHeading: `## Claude Code Skills 社区热点`,
-          skillsSource: `数据来源`,
+          title: `# OLAP 生态索引日报 ${dateStr}\n\n`,
+          meta: `> 生成时间: ${utcStr} UTC | 覆盖项目: ${indexDigests.length} 个\n\n`,
           comparison: `## 横向对比\n\n`,
-          detail: `## 各工具详细报告\n\n`,
+          detail: `## 各项目详细报告\n\n`,
         };
 
-  const skillsSection =
-    `${t.skillsHeading}\n\n` +
-    `> ${t.skillsSource}: [anthropics/skills](https://github.com/${skillsRepo})\n\n` +
-    `${skillsSummary}\n\n---\n\n`;
-
-  const toolSections = cliDigests
+  const toolSections = indexDigests
     .map((d) => {
-      const skills = d.config.id === "claude-code" ? skillsSection : "";
       return [
         `<details>`,
         `<summary><strong>${d.config.name}</strong> — <a href="https://github.com/${d.config.repo}">${d.config.repo}</a></summary>`,
         ``,
-        skills + d.summary,
+        d.summary,
         ``,
         `</details>`,
       ].join("\n");
@@ -76,26 +64,26 @@ export function buildCliReportContent(
 }
 
 // ---------------------------------------------------------------------------
-// OpenClaw Report
+// Primary Engine Report (Apache Doris deep dive + peer comparison)
 // ---------------------------------------------------------------------------
 
-export function buildOpenclawReportContent(
-  fetchedOpenclaw: RepoFetch,
+export function buildPrimaryEngineReportContent(
+  fetchedPrimary: RepoFetch,
   peerDigests: RepoDigest[],
-  openclawSummary: string,
+  primarySummary: string,
   peersComparison: string,
   utcStr: string,
   dateStr: string,
   footer: string,
-  openclaw: RepoConfig,
-  openclawPeers: RepoConfig[],
+  primaryRepo: RepoConfig,
+  peerRepos: RepoConfig[],
   lang: "zh" | "en" = "zh",
 ): string {
-  const { issues, prs } = fetchedOpenclaw;
+  const { issues, prs } = fetchedPrimary;
 
   const peersRepoLinks =
-    `- [OpenClaw](https://github.com/${openclaw.repo})\n` +
-    openclawPeers.map((p) => `- [${p.name}](https://github.com/${p.repo})`).join("\n");
+    `- [${primaryRepo.name}](https://github.com/${primaryRepo.repo})\n` +
+    peerRepos.map((p) => `- [${p.name}](https://github.com/${p.repo})`).join("\n");
 
   const peerDetailSections = peerDigests
     .map((d) =>
@@ -113,18 +101,18 @@ export function buildOpenclawReportContent(
   const t =
     lang === "en"
       ? {
-          title: `# OpenClaw Ecosystem Digest ${dateStr}\n\n`,
-          meta: `> Issues: ${issues.length} | PRs: ${prs.length} | Projects covered: ${1 + openclawPeers.length} | Generated: ${utcStr} UTC\n\n`,
-          deepDive: `## OpenClaw Deep Dive\n\n`,
-          comparison: `## Cross-Ecosystem Comparison\n\n`,
-          peers: `## Peer Project Reports\n\n`,
+          title: `# ${primaryRepo.name} Ecosystem Digest ${dateStr}\n\n`,
+          meta: `> Issues: ${issues.length} | PRs: ${prs.length} | Projects covered: ${1 + peerRepos.length} | Generated: ${utcStr} UTC\n\n`,
+          deepDive: `## ${primaryRepo.name} Deep Dive\n\n`,
+          comparison: `## Cross-Engine Comparison\n\n`,
+          peers: `## Peer Engine Reports\n\n`,
         }
       : {
-          title: `# OpenClaw 生态日报 ${dateStr}\n\n`,
-          meta: `> Issues: ${issues.length} | PRs: ${prs.length} | 覆盖项目: ${1 + openclawPeers.length} 个 | 生成时间: ${utcStr} UTC\n\n`,
-          deepDive: `## OpenClaw 项目深度报告\n\n`,
-          comparison: `## 横向生态对比\n\n`,
-          peers: `## 同赛道项目详细报告\n\n`,
+          title: `# ${primaryRepo.name} 生态日报 ${dateStr}\n\n`,
+          meta: `> Issues: ${issues.length} | PRs: ${prs.length} | 覆盖项目: ${1 + peerRepos.length} 个 | 生成时间: ${utcStr} UTC\n\n`,
+          deepDive: `## ${primaryRepo.name} 项目深度报告\n\n`,
+          comparison: `## 横向引擎对比\n\n`,
+          peers: `## 同赛道引擎详细报告\n\n`,
         };
 
   return (
@@ -133,7 +121,7 @@ export function buildOpenclawReportContent(
     `${peersRepoLinks}\n\n` +
     `---\n\n` +
     t.deepDive +
-    openclawSummary +
+    primarySummary +
     `\n\n---\n\n` +
     t.comparison +
     peersComparison +

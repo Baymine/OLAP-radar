@@ -1,4 +1,4 @@
-name: Weekly Agents Radar
+name: Weekly OLAP Radar
 
 on:
   schedule:
@@ -48,7 +48,7 @@ jobs:
             echo "No weekly report to commit"
           else
             WEEK=$(date -u +%Y-W%V)
-            git commit -m "digest: ${WEEK} weekly digest"
+            git commit -m "digest: ${WEEK} weekly OLAP digest"
             git pull --rebase
             git push
           fi
@@ -68,6 +68,6 @@ jobs:
       - name: Send Telegram notification
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || '@agents_radar' }}
-          PAGES_URL: https://duanyytop.github.io/agents-radar
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID || '@olap_radar' }}
+          PAGES_URL: ${{ secrets.PAGES_URL }}
         run: pnpm notify
