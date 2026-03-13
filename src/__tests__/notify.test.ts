@@ -55,6 +55,13 @@ describe("buildMessage", () => {
     expect(msg).not.toContain("HN Data Infra");
   });
 
+  it("renders arxiv report labels in zh and en", () => {
+    const msg = buildMessage("2026-03-09", ["olap-arxiv", "olap-arxiv-en"], BASE_URL);
+    expect(msg).toContain("OLAP ArXiv 论文");
+    expect(msg).toContain("OLAP arXiv Paper");
+    expect(msg).toContain(`${BASE_URL}/#2026-03-09/olap-arxiv`);
+  });
+
   it("includes Web UI and RSS links", () => {
     const msg = buildMessage("2026-03-09", ["olap-index"], BASE_URL);
     expect(msg).toContain("🌐 Web UI");
