@@ -1,7 +1,3 @@
-/**
- * Hacker News AI stories fetched via the Algolia HN Search API.
- */
-
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -29,7 +25,7 @@ export interface HnData {
 const HN_TOP_STORIES = 30;
 
 /** Queries run in parallel; results are deduped by story ID. */
-const QUERIES = ["AI", "LLM", "Claude", "OpenAI", "Anthropic", "machine learning"];
+const QUERIES = ["OLAP", "ClickHouse", "DuckDB", "Apache Doris", "lakehouse", "data warehouse"];
 
 // ---------------------------------------------------------------------------
 // Algolia API types

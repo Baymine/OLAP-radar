@@ -1,7 +1,3 @@
-/**
- * GitHub trending and AI topic search data fetching.
- */
-
 // ---------------------------------------------------------------------------
 // Types
 // ---------------------------------------------------------------------------
@@ -37,12 +33,12 @@ export interface TrendingData {
 // ---------------------------------------------------------------------------
 
 const SEARCH_QUERIES = [
-  { q: "topic:llm", label: "llm" },
-  { q: "topic:ai-agent", label: "ai-agent" },
-  { q: "topic:rag", label: "rag" },
-  { q: "topic:vector-database", label: "vector-db" },
-  { q: "topic:large-language-model", label: "llm-model" },
-  { q: "topic:machine-learning", label: "ml" },
+  { q: "topic:olap", label: "olap" },
+  { q: "topic:data-warehouse", label: "data-warehouse" },
+  { q: "topic:lakehouse", label: "lakehouse" },
+  { q: "topic:query-engine", label: "query-engine" },
+  { q: "topic:columnar", label: "columnar" },
+  { q: "topic:analytics", label: "analytics" },
 ];
 
 // ---------------------------------------------------------------------------
@@ -141,7 +137,7 @@ interface SearchApiResponse {
   items: SearchApiItem[];
 }
 
-async function searchAiRepos(sevenDaysAgo: string): Promise<SearchRepo[]> {
+async function searchTrendingRepos(sevenDaysAgo: string): Promise<SearchRepo[]> {
   const token = process.env["GITHUB_TOKEN"] ?? "";
   const headers: Record<string, string> = {
     Accept: "application/vnd.github+json",
@@ -198,7 +194,7 @@ export async function fetchTrendingData(): Promise<TrendingData> {
 
   const [{ repos: trendingRepos, success }, searchRepos] = await Promise.all([
     fetchGitHubTrending(),
-    searchAiRepos(sevenDaysAgo),
+    searchTrendingRepos(sevenDaysAgo),
   ]);
 
   return { trendingRepos, searchRepos, trendingFetchSuccess: success };

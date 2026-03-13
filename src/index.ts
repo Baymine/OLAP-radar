@@ -22,7 +22,7 @@ import {
 } from "./prompts.ts";
 import { callLlm, saveFile, autoGenFooter, LLM_TOKENS_WEB, LLM_TOKENS_TRENDING } from "./report.ts";
 import { buildIndexReportContent, buildPrimaryEngineReportContent } from "./report-builders.ts";
-import { loadWebState, saveWebState, fetchSiteContent, type WebFetchResult, type WebState } from "./web.ts";
+import { loadWebState, saveWebState, type WebFetchResult, type WebState } from "./web.ts";
 import { fetchTrendingData, type TrendingData } from "./trending.ts";
 import { fetchHnData, type HnData } from "./hn.ts";
 import { loadConfig } from "./config.ts";
@@ -58,9 +58,9 @@ async function fetchAllData(
   hnData: HnData;
 }> {
   const allConfigs = [...INDEX_REPOS, PRIMARY_REPO, ...PEER_REPOS];
-  console.log(`  Tracking: ${allConfigs.map((r) => r.id).join(", ")}, web, hn`);
+  console.log(`  Tracking: ${allConfigs.map((r) => r.id).join(", ")}, hn`);
 
-  const [fetched, webResults, trendingData, hnData] = await Promise.all([
+  const [fetched, trendingData, hnData] = await Promise.all([
     Promise.all(
       allConfigs.map(async (cfg) => {
         const [issuesRaw, prs, releases] = await Promise.all([
@@ -75,22 +75,6 @@ async function fetchAllData(
         return { cfg, issues, prs, releases };
       }),
     ),
-    Promise.all([
-      fetchSiteContent("anthropic", webState).catch((err): WebFetchResult => {
-        console.error(`  [web/anthropic] fetch failed: ${err}`);
-        return {
-          site: "anthropic",
-          siteName: "Anthropic (Claude)",
-          isFirstRun: false,
-          newItems: [],
-          totalDiscovered: 0,
-        };
-      }),
-      fetchSiteContent("openai", webState).catch((err): WebFetchResult => {
-        console.error(`  [web/openai] fetch failed: ${err}`);
-        return { site: "openai", siteName: "OpenAI", isFirstRun: false, newItems: [], totalDiscovered: 0 };
-      }),
-    ]),
     fetchTrendingData().catch(
       (): TrendingData => ({
         trendingRepos: [],
@@ -101,7 +85,9 @@ async function fetchAllData(
     fetchHnData().catch((): HnData => ({ stories: [], fetchSuccess: false })),
   ]);
 
-  return { fetched, webResults, trendingData, hnData };
+  void webState;
+
+  return { fetched, webResults: [], trendingData, hnData };
 }
 
 // ---------------------------------------------------------------------------
@@ -218,6 +204,11 @@ async function saveWebReport(
   footer: string,
   lang: "zh" | "en" = "zh",
 ): Promise<void> {
+  if (webResults.length === 0) {
+    console.log(`  [web/${lang}] No OLAP official web sources configured, skipping report.`);
+    return;
+  }
+
   const hasNewContent = webResults.some((r) => r.newItems.length > 0);
 
   if (hasNewContent) {
