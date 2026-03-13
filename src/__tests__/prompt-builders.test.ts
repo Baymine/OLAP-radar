@@ -9,11 +9,13 @@ import {
   buildWeeklyPrompt,
   buildMonthlyPrompt,
   buildHnPrompt,
+  buildArxivPrompt,
 } from "../prompts.ts";
 import type { RepoConfig, GitHubItem, GitHubRelease } from "../github.ts";
 import type { RepoDigest } from "../prompts.ts";
 import type { TrendingData } from "../trending.ts";
 import type { HnData } from "../hn.ts";
+import type { ArxivData } from "../arxiv.ts";
 import type { WebFetchResult } from "../web.ts";
 
 // ---------------------------------------------------------------------------
@@ -336,5 +338,56 @@ describe("buildHnPrompt", () => {
     expect(result).toContain("Score: 10");
     expect(result).toContain("Comments: 2");
     expect(result).toContain("Hacker News");
+  });
+});
+
+describe("buildArxivPrompt", () => {
+  it("includes paper metadata in zh prompt", () => {
+    const data: ArxivData = {
+      papers: [
+        {
+          id: "2503.12345",
+          title: "Adaptive OLAP Query Optimization",
+          summary: "We study adaptive optimization for analytical workloads.",
+          published: "2026-03-09T10:00:00Z",
+          updated: "2026-03-10T10:00:00Z",
+          authors: ["Alice", "Bob"],
+          categories: ["cs.DB", "cs.DC"],
+          absUrl: "https://arxiv.org/abs/2503.12345",
+          pdfUrl: "https://arxiv.org/pdf/2503.12345.pdf",
+        },
+      ],
+      fetchSuccess: true,
+      query: 'all:olap OR all:"data warehouse"',
+    };
+    const result = buildArxivPrompt(data, "2026-03-10");
+    expect(result).toContain("Adaptive OLAP Query Optimization");
+    expect(result).toContain("Alice, Bob");
+    expect(result).toContain("OLAP 每日论文精选（arXiv）");
+    expect(result).toContain("cs.DB, cs.DC");
+  });
+
+  it("generates English variant", () => {
+    const data: ArxivData = {
+      papers: [
+        {
+          id: "2503.12345",
+          title: "Adaptive OLAP Query Optimization",
+          summary: "We study adaptive optimization for analytical workloads.",
+          published: "2026-03-09T10:00:00Z",
+          updated: "2026-03-10T10:00:00Z",
+          authors: ["Alice"],
+          categories: ["cs.DB"],
+          absUrl: "https://arxiv.org/abs/2503.12345",
+          pdfUrl: "https://arxiv.org/pdf/2503.12345.pdf",
+        },
+      ],
+      fetchSuccess: true,
+      query: "all:olap",
+    };
+    const result = buildArxivPrompt(data, "2026-03-10", "en");
+    expect(result).toContain("OLAP Daily Top Paper from arXiv");
+    expect(result).toContain("Authors: Alice");
+    expect(result).toContain("Published: 2026-03-09");
   });
 });
