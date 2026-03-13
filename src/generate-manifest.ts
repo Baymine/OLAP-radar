@@ -7,6 +7,20 @@ const FEED_PATH = "feed.xml";
 const SITE_URL = "https://duanyytop.github.io/agents-radar";
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const REPORT_FILES = [
+  "olap-index",
+  "olap-index-en",
+  "olap-engines",
+  "olap-engines-en",
+  "olap-web",
+  "olap-web-en",
+  "olap-trending",
+  "olap-trending-en",
+  "olap-hn",
+  "olap-hn-en",
+  "olap-weekly",
+  "olap-weekly-en",
+  "olap-monthly",
+  "olap-monthly-en",
   "ai-cli",
   "ai-cli-en",
   "ai-agents",
@@ -25,6 +39,20 @@ const REPORT_FILES = [
 const MAX_FEED_ITEMS = 30;
 
 const REPORT_LABELS: Record<string, string> = {
+  "olap-index": "OLAP 生态索引日报",
+  "olap-index-en": "OLAP Ecosystem Index Digest",
+  "olap-engines": "OLAP 引擎生态日报",
+  "olap-engines-en": "OLAP Engines Ecosystem Digest",
+  "olap-web": "OLAP 官方内容追踪报告",
+  "olap-web-en": "OLAP Official Content Report",
+  "olap-trending": "OLAP 开源趋势日报",
+  "olap-trending-en": "OLAP Open Source Trends",
+  "olap-hn": "Hacker News 数据基础设施社区动态日报",
+  "olap-hn-en": "Hacker News Data Infrastructure Community Digest",
+  "olap-weekly": "OLAP 生态周报",
+  "olap-weekly-en": "OLAP Ecosystem Weekly Report",
+  "olap-monthly": "OLAP 生态月报",
+  "olap-monthly-en": "OLAP Ecosystem Monthly Report",
   "ai-cli": "AI CLI 工具社区动态日报",
   "ai-cli-en": "AI CLI Tools Digest",
   "ai-agents": "AI Agents 生态日报",
@@ -123,7 +151,7 @@ function main(): void {
     `  <channel>\n` +
     `    <title>agents-radar</title>\n` +
     `    <link>${SITE_URL}</link>\n` +
-    `    <description>AI 开源生态每日简报 · Daily AI ecosystem digest</description>\n` +
+    `    <description>OLAP 开源生态每日简报 · Daily OLAP ecosystem digest</description>\n` +
     `    <language>zh-CN</language>\n` +
     `    <atom:link href="${SITE_URL}/feed.xml" rel="self" type="application/rss+xml"/>\n` +
     `    <lastBuildDate>${buildDate}</lastBuildDate>\n` +

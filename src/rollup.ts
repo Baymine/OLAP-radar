@@ -14,7 +14,7 @@ const DIGESTS_DIR = "digests";
 const MAX_CHARS_PER_REPORT = 2500;
 
 // Source report types to read for rollups (in priority order)
-const ROLLUP_SOURCES = ["ai-cli", "ai-agents", "ai-trending", "ai-hn", "ai-web"];
+const ROLLUP_SOURCES = ["olap-index", "olap-engines", "olap-trending", "olap-hn", "olap-web"];
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -44,7 +44,7 @@ function readDailyDigest(date: string): string | null {
 
 /** Read a weekly report file. Returns null if not found. */
 function readWeeklyDigest(date: string): string | null {
-  const p = path.join(DIGESTS_DIR, date, "ai-weekly.md");
+  const p = path.join(DIGESTS_DIR, date, "olap-weekly.md");
   if (!fs.existsSync(p)) return null;
   const content = fs.readFileSync(p, "utf-8");
   return content.slice(0, 3000) + (content.length > 3000 ? "\n...[截断]" : "");
@@ -103,24 +103,24 @@ export async function runWeeklyRollup(): Promise<void> {
   const enFooter = autoGenFooter("en");
 
   const zhContent =
-    `# AI 工具生态周报 ${weekStr}\n\n` +
+    `# OLAP 生态周报 ${weekStr}\n\n` +
     `> 覆盖日期: ${last7[last7.length - 1]} ~ ${last7[0]} | 生成时间: ${utcStr} UTC\n\n` +
     `---\n\n` +
     zhSummary +
     footer;
 
   const enContent =
-    `# AI Tools Ecosystem Weekly Report ${weekStr}\n\n` +
+    `# OLAP Ecosystem Weekly Report ${weekStr}\n\n` +
     `> Coverage: ${last7[last7.length - 1]} ~ ${last7[0]} | Generated: ${utcStr} UTC\n\n` +
     `---\n\n` +
     enSummary +
     enFooter;
 
-  console.log(`  Saved ${saveFile(zhContent, dateStr, "ai-weekly.md")}`);
-  console.log(`  Saved ${saveFile(enContent, dateStr, "ai-weekly-en.md")}`);
+  console.log(`  Saved ${saveFile(zhContent, dateStr, "olap-weekly.md")}`);
+  console.log(`  Saved ${saveFile(enContent, dateStr, "olap-weekly-en.md")}`);
 
   if (digestRepo) {
-    const url = await createGitHubIssue(`📅 AI 工具生态周报 ${weekStr}`, zhContent, "weekly");
+    const url = await createGitHubIssue(`📅 OLAP 生态周报 ${weekStr}`, zhContent, "weekly");
     console.log(`  Created weekly issue: ${url}`);
   }
 
@@ -147,7 +147,7 @@ export async function runMonthlyRollup(): Promise<void> {
 
   // Prefer weekly reports from the target month
   const monthDates = allDates.filter((d) => d.startsWith(monthStr));
-  const weeklyDates = monthDates.filter((d) => fs.existsSync(path.join(DIGESTS_DIR, d, "ai-weekly.md")));
+  const weeklyDates = monthDates.filter((d) => fs.existsSync(path.join(DIGESTS_DIR, d, "olap-weekly.md")));
 
   let sourceDigests: Record<string, string>;
   let sourceLabel: { zh: string; en: string };
@@ -195,24 +195,24 @@ export async function runMonthlyRollup(): Promise<void> {
   const enFooter = autoGenFooter("en");
 
   const zhContent =
-    `# AI 工具生态月报 ${monthStr}\n\n` +
+    `# OLAP 生态月报 ${monthStr}\n\n` +
     `> 数据来源: ${sourceLabel.zh} | 生成时间: ${utcStr} UTC\n\n` +
     `---\n\n` +
     zhSummary +
     footer;
 
   const enContent =
-    `# AI Tools Ecosystem Monthly Report ${monthStr}\n\n` +
+    `# OLAP Ecosystem Monthly Report ${monthStr}\n\n` +
     `> Sources: ${sourceLabel.en} | Generated: ${utcStr} UTC\n\n` +
     `---\n\n` +
     enSummary +
     enFooter;
 
-  console.log(`  Saved ${saveFile(zhContent, dateStr, "ai-monthly.md")}`);
-  console.log(`  Saved ${saveFile(enContent, dateStr, "ai-monthly-en.md")}`);
+  console.log(`  Saved ${saveFile(zhContent, dateStr, "olap-monthly.md")}`);
+  console.log(`  Saved ${saveFile(enContent, dateStr, "olap-monthly-en.md")}`);
 
   if (digestRepo) {
-    const url = await createGitHubIssue(`📆 AI 工具生态月报 ${monthStr}`, zhContent, "monthly");
+    const url = await createGitHubIssue(`📆 OLAP 生态月报 ${monthStr}`, zhContent, "monthly");
     console.log(`  Created monthly issue: ${url}`);
   }
 

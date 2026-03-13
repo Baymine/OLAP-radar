@@ -14,6 +14,13 @@ import fs from "node:fs";
 const PAGES_URL_DEFAULT = "https://duanyytop.github.io/agents-radar";
 
 const ZH_LABELS: Record<string, string> = {
+  "olap-index": "OLAP 索引",
+  "olap-engines": "OLAP 引擎生态",
+  "olap-web": "OLAP 官方内容",
+  "olap-trending": "OLAP GitHub 趋势",
+  "olap-hn": "HN 数据基础设施社区",
+  "olap-weekly": "OLAP 生态周报",
+  "olap-monthly": "OLAP 生态月报",
   "ai-cli": "AI CLI 工具",
   "ai-agents": "AI Agents 生态",
   "ai-web": "官网动态",
@@ -24,6 +31,13 @@ const ZH_LABELS: Record<string, string> = {
 };
 
 const EN_LABELS: Record<string, string> = {
+  "olap-index": "OLAP Index",
+  "olap-engines": "OLAP Engines",
+  "olap-web": "OLAP Official Content",
+  "olap-trending": "OLAP GitHub Trends",
+  "olap-hn": "HN Data Infra",
+  "olap-weekly": "OLAP Weekly",
+  "olap-monthly": "OLAP Monthly",
   "ai-cli": "AI CLI Tools",
   "ai-agents": "AI Agents Ecosystem",
   "ai-web": "Official Updates",
@@ -56,8 +70,8 @@ async function sendTelegram(text: string): Promise<void> {
 export function buildMessage(date: string, reports: string[], pagesUrl?: string): string {
   const PAGES_URL = (pagesUrl ?? process.env["PAGES_URL"] ?? PAGES_URL_DEFAULT).replace(/\/$/, "");
   const baseReports = reports.filter((r) => !r.endsWith("-en"));
-  const isWeekly = baseReports.includes("ai-weekly");
-  const isMonthly = baseReports.includes("ai-monthly");
+  const isWeekly = baseReports.includes("olap-weekly") || baseReports.includes("ai-weekly");
+  const isMonthly = baseReports.includes("olap-monthly") || baseReports.includes("ai-monthly");
 
   const icon = isMonthly ? "📆" : isWeekly ? "📅" : "📡";
   const suffix = isMonthly ? " 月报" : isWeekly ? " 周报" : "";
