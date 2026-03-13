@@ -19,12 +19,14 @@ import {
   buildWebReportPrompt,
   buildTrendingPrompt,
   buildHnPrompt,
+  buildArxivPrompt,
 } from "./prompts.ts";
 import { callLlm, saveFile, autoGenFooter, LLM_TOKENS_WEB, LLM_TOKENS_TRENDING } from "./report.ts";
 import { buildIndexReportContent, buildPrimaryEngineReportContent } from "./report-builders.ts";
 import { loadWebState, saveWebState, type WebFetchResult, type WebState } from "./web.ts";
 import { fetchTrendingData, type TrendingData } from "./trending.ts";
 import { fetchHnData, type HnData } from "./hn.ts";
+import { fetchArxivData, type ArxivData } from "./arxiv.ts";
 import { loadConfig } from "./config.ts";
 import { toCstDateStr, toUtcStr } from "./date.ts";
 
@@ -56,11 +58,12 @@ async function fetchAllData(
   webResults: WebFetchResult[];
   trendingData: TrendingData;
   hnData: HnData;
+  arxivData: ArxivData;
 }> {
   const allConfigs = [...INDEX_REPOS, PRIMARY_REPO, ...PEER_REPOS];
-  console.log(`  Tracking: ${allConfigs.map((r) => r.id).join(", ")}, hn`);
+  console.log(`  Tracking: ${allConfigs.map((r) => r.id).join(", ")}, hn, arxiv`);
 
-  const [fetched, trendingData, hnData] = await Promise.all([
+  const [fetched, trendingData, hnData, arxivData] = await Promise.all([
     Promise.all(
       allConfigs.map(async (cfg) => {
         const [issuesRaw, prs, releases] = await Promise.all([
@@ -83,11 +86,12 @@ async function fetchAllData(
       }),
     ),
     fetchHnData().catch((): HnData => ({ stories: [], fetchSuccess: false })),
+    fetchArxivData().catch((): ArxivData => ({ papers: [], fetchSuccess: false, query: "" })),
   ]);
 
   void webState;
 
-  return { fetched, webResults: [], trendingData, hnData };
+  return { fetched, webResults: [], trendingData, hnData, arxivData };
 }
 
 // ---------------------------------------------------------------------------
@@ -339,6 +343,50 @@ async function saveHnReport(
   }
 }
 
+async function saveArxivReport(
+  arxivData: ArxivData,
+  utcStr: string,
+  dateStr: string,
+  digestRepo: string,
+  footer: string,
+  lang: "zh" | "en" = "zh",
+): Promise<void> {
+  if (!arxivData.fetchSuccess) {
+    console.log(`  [arxiv/${lang}] No data available, skipping report.`);
+    return;
+  }
+
+  console.log(`  [arxiv/${lang}] Calling LLM for arXiv report...`);
+  try {
+    const arxivSummary = await callLlm(buildArxivPrompt(arxivData, dateStr, lang));
+    const fileName = lang === "en" ? "olap-arxiv-en.md" : "olap-arxiv.md";
+    const header =
+      lang === "en"
+        ? `# OLAP Daily Top Paper from arXiv ${dateStr}\n\n` +
+          `> Source: [arXiv](https://arxiv.org/) | ${arxivData.papers.length} candidate papers | Generated: ${utcStr} UTC\n\n` +
+          `---\n\n`
+        : `# OLAP 每日论文精选（arXiv） ${dateStr}\n\n` +
+          `> 数据来源: [arXiv](https://arxiv.org/) | 共 ${arxivData.papers.length} 篇候选论文 | 生成时间: ${utcStr} UTC\n\n` +
+          `---\n\n`;
+
+    const arxivContent = header + arxivSummary + footer;
+
+    console.log(`  Saved ${saveFile(arxivContent, dateStr, fileName)}`);
+
+    if (digestRepo) {
+      const arxivTitle =
+        lang === "en"
+          ? `📚 OLAP Daily Top Paper from arXiv ${dateStr}`
+          : `📚 OLAP 每日论文精选（arXiv） ${dateStr}`;
+      const arxivLabel = lang === "en" ? "arxiv-en" : "arxiv";
+      const arxivUrl = await createGitHubIssue(arxivTitle, arxivContent, arxivLabel);
+      console.log(`  Created arXiv issue (${lang}): ${arxivUrl}`);
+    }
+  } catch (err) {
+    console.error(`  [arxiv/${lang}] Report generation failed: ${err}`);
+  }
+}
+
 // ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
@@ -360,7 +408,7 @@ async function main(): Promise<void> {
 
   // 1. Fetch all data in parallel
   const webState = loadWebState();
-  const { fetched, webResults, trendingData, hnData } = await fetchAllData(since, webState);
+  const { fetched, webResults, trendingData, hnData, arxivData } = await fetchAllData(since, webState);
 
   const peerIds = new Set(PEER_REPOS.map((p) => p.id));
   const fetchedIndex = fetched.filter((f) => f.cfg.id !== PRIMARY_REPO.id && !peerIds.has(f.cfg.id));
@@ -464,6 +512,8 @@ async function main(): Promise<void> {
     ),
     saveHnReport(hnData, utcStr, dateStr, digestRepo, footer, "zh"),
     saveHnReport(hnData, utcStr, dateStr, digestRepo, enFooter, "en"),
+    saveArxivReport(arxivData, utcStr, dateStr, digestRepo, footer, "zh"),
+    saveArxivReport(arxivData, utcStr, dateStr, digestRepo, enFooter, "en"),
   ]);
 
   // 5. Create GitHub issues for index + primary engine reports (zh + en)

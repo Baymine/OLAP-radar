@@ -7,6 +7,7 @@ import type { RepoConfig, GitHubItem, GitHubRelease } from "./github.ts";
 import type { WebFetchResult } from "./web.ts";
 import type { TrendingData } from "./trending.ts";
 import type { HnData } from "./hn.ts";
+import type { ArxivData } from "./arxiv.ts";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -822,4 +823,68 @@ ${storiesText}
 
 语言要求：中文，简洁专业，保留所有原文链接。
 `;
+}
+
+export function buildArxivPrompt(data: ArxivData, dateStr: string, lang: "zh" | "en" = "zh"): string {
+  const papersText = data.papers
+    .map((paper, index) => {
+      const authors = paper.authors.join(", ") || (lang === "en" ? "Unknown" : "未知");
+      const categories = paper.categories.join(", ") || (lang === "en" ? "None" : "无");
+      return lang === "en"
+        ? `${index + 1}. **${paper.title}**\n` +
+            `   Authors: ${authors}\n` +
+            `   Published: ${paper.published.slice(0, 10)} | Updated: ${paper.updated.slice(0, 10)}\n` +
+            `   Categories: ${categories}\n` +
+            `   Abstract: ${paper.summary}\n` +
+            `   arXiv: ${paper.absUrl}\n` +
+            `   PDF: ${paper.pdfUrl}`
+        : `${index + 1}. **${paper.title}**\n` +
+            `   作者: ${authors}\n` +
+            `   发布时间: ${paper.published.slice(0, 10)} | 更新时间: ${paper.updated.slice(0, 10)}\n` +
+            `   分类: ${categories}\n` +
+            `   摘要: ${paper.summary}\n` +
+            `   arXiv: ${paper.absUrl}\n` +
+            `   PDF: ${paper.pdfUrl}`;
+    })
+    .join("\n\n");
+
+  const paperNote = sampleNote(data.papers.length, data.papers.length, lang);
+
+  if (lang === "en") {
+    return `You are a technical research analyst focused on OLAP and data infrastructure. The following are recent arXiv papers collected on ${dateStr} from OLAP-related search queries.
+
+Search query: ${data.query}
+
+Candidate papers ${paperNote}
+${papersText}
+
+---
+
+Generate an English report titled "OLAP Daily Top Paper from arXiv" with these sections:
+
+1. **Today's Top Paper** — choose the single most important paper for today's OLAP audience and explain why in 3-5 sentences
+2. **Paper Snapshot** — title, authors, publication date, research problem, and core method
+3. **Why It Matters for OLAP** — connect it to query engines, storage, lakehouse systems, optimization, benchmarking, or analytical workloads
+4. **Worth Watching** — 1-2 concise notes on promising secondary papers if any stand out
+
+Style: English, concise and technical, useful for data engineers and database researchers.`;
+  }
+
+  return `你是一位专注于 OLAP 与数据基础设施方向的技术研究分析师。以下是 ${dateStr} 从 arXiv 的 OLAP 相关搜索中抓取到的近期论文候选。
+
+搜索条件: ${data.query}
+
+论文候选${paperNote}
+${papersText}
+
+---
+
+请生成一份《OLAP 每日论文精选（arXiv）》，包含以下部分：
+
+1. **今日 Top 论文** — 选择今天最值得 OLAP 读者关注的一篇论文，用 3~5 句话说明原因
+2. **论文速览** — 标题、作者、发布时间、研究问题、核心方法
+3. **与 OLAP 的关系** — 说明它对查询引擎、存储、Lakehouse、优化器、Benchmark 或分析型负载的意义
+4. **值得继续关注** — 如果其他候选也值得看，补充 1~2 条简短说明
+
+语言要求：中文，技术向、简洁、适合数据工程师和数据库研究者阅读。`;
 }
