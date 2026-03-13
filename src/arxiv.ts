@@ -100,6 +100,10 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function shouldRetry(status: number): boolean {
+  return status === 429 || (status >= 500 && status < 600);
+}
+
 export async function fetchArxivData(): Promise<ArxivData> {
   const url =
     `${ARXIV_API_URL}?search_query=${encodeURIComponent(SEARCH_QUERY)}` +
@@ -110,12 +114,12 @@ export async function fetchArxivData(): Promise<ArxivData> {
       const resp = await fetch(url, {
         headers: { "User-Agent": "agents-radar/1.0 (OLAP arXiv digest)" },
       });
-      if (resp.status === 429 && attempt < MAX_RETRIES) {
-        console.error(`  [arxiv] HTTP 429, retrying in ${RETRY_DELAY_MS / 1000}s...`);
-        await sleep(RETRY_DELAY_MS);
-        continue;
-      }
       if (!resp.ok) {
+        if (attempt < MAX_RETRIES && shouldRetry(resp.status)) {
+          console.error(`  [arxiv] HTTP ${resp.status}, retrying in ${RETRY_DELAY_MS / 1000}s...`);
+          await sleep(RETRY_DELAY_MS);
+          continue;
+        }
         console.error(`  [arxiv] HTTP ${resp.status}`);
         return { papers: [], fetchSuccess: false, query: SEARCH_QUERY };
       }

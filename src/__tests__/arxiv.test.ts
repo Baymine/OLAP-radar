@@ -66,4 +66,20 @@ describe("fetchArxivData", () => {
     expect(data.fetchSuccess).toBe(true);
     expect(globalThis.fetch).toHaveBeenCalledTimes(2);
   });
+
+  it("retries on 503 and succeeds on a later response", async () => {
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValueOnce({ ok: false, status: 503, text: async () => "" })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        text: async () => SAMPLE_FEED,
+      }) as unknown as typeof fetch;
+
+    const data = await fetchArxivData();
+
+    expect(data.fetchSuccess).toBe(true);
+    expect(globalThis.fetch).toHaveBeenCalledTimes(2);
+  });
 });
