@@ -6,7 +6,63 @@
     <description>OLAP 开源生态每日简报 · Daily OLAP ecosystem digest</description>
     <language>zh-CN</language>
     <atom:link href="https://duanyytop.github.io/agents-radar/feed.xml" rel="self" type="application/rss+xml"/>
-    <lastBuildDate>Fri, 13 Mar 2026 02:08:07 +0000</lastBuildDate>
+    <lastBuildDate>Sat, 14 Mar 2026 01:25:11 +0000</lastBuildDate>
+    <item>
+      <title>OLAP 生态索引日报 2026-03-14</title>
+      <link>https://duanyytop.github.io/agents-radar/#2026-03-14/olap-index</link>
+      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-14/olap-index</guid>
+      <pubDate>Sat, 14 Mar 2026 00:00:00 +0000</pubDate>
+      <description>OLAP 生态索引日报 2026-03-14</description>
+    </item>
+    <item>
+      <title>OLAP Ecosystem Index Digest 2026-03-14</title>
+      <link>https://duanyytop.github.io/agents-radar/#2026-03-14/olap-index-en</link>
+      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-14/olap-index-en</guid>
+      <pubDate>Sat, 14 Mar 2026 00:00:00 +0000</pubDate>
+      <description>OLAP Ecosystem Index Digest 2026-03-14</description>
+    </item>
+    <item>
+      <title>OLAP 引擎生态日报 2026-03-14</title>
+      <link>https://duanyytop.github.io/agents-radar/#2026-03-14/olap-engines</link>
+      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-14/olap-engines</guid>
+      <pubDate>Sat, 14 Mar 2026 00:00:00 +0000</pubDate>
+      <description>OLAP 引擎生态日报 2026-03-14</description>
+    </item>
+    <item>
+      <title>OLAP Engines Ecosystem Digest 2026-03-14</title>
+      <link>https://duanyytop.github.io/agents-radar/#2026-03-14/olap-engines-en</link>
+      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-14/olap-engines-en</guid>
+      <pubDate>Sat, 14 Mar 2026 00:00:00 +0000</pubDate>
+      <description>OLAP Engines Ecosystem Digest 2026-03-14</description>
+    </item>
+    <item>
+      <title>OLAP 开源趋势日报 2026-03-14</title>
+      <link>https://duanyytop.github.io/agents-radar/#2026-03-14/olap-trending</link>
+      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-14/olap-trending</guid>
+      <pubDate>Sat, 14 Mar 2026 00:00:00 +0000</pubDate>
+      <description>OLAP 开源趋势日报 2026-03-14</description>
+    </item>
+    <item>
+      <title>OLAP Open Source Trends 2026-03-14</title>
+      <link>https://duanyytop.github.io/agents-radar/#2026-03-14/olap-trending-en</link>
+      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-14/olap-trending-en</guid>
+      <pubDate>Sat, 14 Mar 2026 00:00:00 +0000</pubDate>
+      <description>OLAP Open Source Trends 2026-03-14</description>
+    </item>
+    <item>
+      <title>Hacker News 数据基础设施社区动态日报 2026-03-14</title>
+      <link>https://duanyytop.github.io/agents-radar/#2026-03-14/olap-hn</link>
+      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-14/olap-hn</guid>
+      <pubDate>Sat, 14 Mar 2026 00:00:00 +0000</pubDate>
+      <description>Hacker News 数据基础设施社区动态日报 2026-03-14</description>
+    </item>
+    <item>
+      <title>Hacker News Data Infrastructure Community Digest 2026-03-14</title>
+      <link>https://duanyytop.github.io/agents-radar/#2026-03-14/olap-hn-en</link>
+      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-14/olap-hn-en</guid>
+      <pubDate>Sat, 14 Mar 2026 00:00:00 +0000</pubDate>
+      <description>Hacker News Data Infrastructure Community Digest 2026-03-14</description>
+    </item>
     <item>
       <title>OLAP 生态索引日报 2026-03-13</title>
       <link>https://duanyytop.github.io/agents-radar/#2026-03-13/olap-index</link>
@@ -160,62 +216,6 @@
       <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-12/ai-web-en</guid>
       <pubDate>Thu, 12 Mar 2026 00:00:00 +0000</pubDate>
       <description>Official AI Content Report 2026-03-12</description>
-    </item>
-    <item>
-      <title>AI 开源趋势日报 2026-03-12</title>
-      <link>https://duanyytop.github.io/agents-radar/#2026-03-12/ai-trending</link>
-      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-12/ai-trending</guid>
-      <pubDate>Thu, 12 Mar 2026 00:00:00 +0000</pubDate>
-      <description>AI 开源趋势日报 2026-03-12</description>
-    </item>
-    <item>
-      <title>AI Open Source Trends 2026-03-12</title>
-      <link>https://duanyytop.github.io/agents-radar/#2026-03-12/ai-trending-en</link>
-      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-12/ai-trending-en</guid>
-      <pubDate>Thu, 12 Mar 2026 00:00:00 +0000</pubDate>
-      <description>AI Open Source Trends 2026-03-12</description>
-    </item>
-    <item>
-      <title>Hacker News AI 社区动态日报 2026-03-12</title>
-      <link>https://duanyytop.github.io/agents-radar/#2026-03-12/ai-hn</link>
-      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-12/ai-hn</guid>
-      <pubDate>Thu, 12 Mar 2026 00:00:00 +0000</pubDate>
-      <description>Hacker News AI 社区动态日报 2026-03-12</description>
-    </item>
-    <item>
-      <title>Hacker News AI Community Digest 2026-03-12</title>
-      <link>https://duanyytop.github.io/agents-radar/#2026-03-12/ai-hn-en</link>
-      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-12/ai-hn-en</guid>
-      <pubDate>Thu, 12 Mar 2026 00:00:00 +0000</pubDate>
-      <description>Hacker News AI Community Digest 2026-03-12</description>
-    </item>
-    <item>
-      <title>AI CLI 工具社区动态日报 2026-03-11</title>
-      <link>https://duanyytop.github.io/agents-radar/#2026-03-11/ai-cli</link>
-      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-11/ai-cli</guid>
-      <pubDate>Wed, 11 Mar 2026 00:00:00 +0000</pubDate>
-      <description>AI CLI 工具社区动态日报 2026-03-11</description>
-    </item>
-    <item>
-      <title>AI CLI Tools Digest 2026-03-11</title>
-      <link>https://duanyytop.github.io/agents-radar/#2026-03-11/ai-cli-en</link>
-      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-11/ai-cli-en</guid>
-      <pubDate>Wed, 11 Mar 2026 00:00:00 +0000</pubDate>
-      <description>AI CLI Tools Digest 2026-03-11</description>
-    </item>
-    <item>
-      <title>AI Agents 生态日报 2026-03-11</title>
-      <link>https://duanyytop.github.io/agents-radar/#2026-03-11/ai-agents</link>
-      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-11/ai-agents</guid>
-      <pubDate>Wed, 11 Mar 2026 00:00:00 +0000</pubDate>
-      <description>AI Agents 生态日报 2026-03-11</description>
-    </item>
-    <item>
-      <title>AI Agents Ecosystem Digest 2026-03-11</title>
-      <link>https://duanyytop.github.io/agents-radar/#2026-03-11/ai-agents-en</link>
-      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-11/ai-agents-en</guid>
-      <pubDate>Wed, 11 Mar 2026 00:00:00 +0000</pubDate>
-      <description>AI Agents Ecosystem Digest 2026-03-11</description>
     </item>
   </channel>
 </rss>
