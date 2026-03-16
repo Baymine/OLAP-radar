@@ -1,226 +1,228 @@
 # OLAP Ecosystem Weekly Report 2026-W12
 
-> Coverage: 2026-03-10 ~ 2026-03-16 | Generated: 2026-03-16 03:06 UTC
+> Coverage: 2026-03-10 ~ 2026-03-16 | Generated: 2026-03-16 03:48 UTC
 
 ---
 
-# OLAP Ecosystem Weekly Report — 2026 W12
+# OLAP Ecosystem Weekly Report  
+**Week 12, 2026 (2026-03-12 to 2026-03-16)**
 
 ## 1. Week’s Top Stories
 
-1. **2026-03-12 — dbt-core activity surged around engineering maturity**
-   - dbt-core had the busiest user-facing week among the tracked projects, with discussions spanning snapshot semantics, selector expansion, package management, Python UDF support, source/docs behavior, and model-level error handling.
-   - The signal: dbt is continuing its transition from transformation tool to a more programmable, governable data development platform.
+1. **2026-03-13 — Spark sustained the highest implementation velocity across the stack**  
+   Apache Spark remained the most active project all week, with heavy PR throughput focused on SQL correctness, streaming state management, DSv2 table capabilities, Python/Arrow integration, and Spark Connect. The key signal is that Spark is prioritizing production hardening over headline features.
 
-2. **2026-03-12 — Spark pushed deeper into correctness + CDC-oriented table APIs**
-   - Apache Spark’s weekly work concentrated on SQL correctness, DSv2/CDC APIs, Arrow/Python integration, and optimizer-path stability.
-   - Especially notable were changes around `CHANGES` clause support, CDC connector APIs, and correctness fixes in optimization-heavy paths such as SPJ and dedup logic.
+2. **2026-03-12 — dbt-core concentrated on platform-scale engineering usability**  
+   dbt-core saw broad activity across parsing, compilation, package management, selectors, Python UDF support, source/docs behavior, and failure handling. The strong theme was governance and operability for larger projects rather than just model authoring ergonomics.
 
-3. **2026-03-13 to 2026-03-16 — Spark remained the execution-layer velocity leader**
-   - Across the week, Spark consistently showed the highest PR throughput, with work on SQL semantics, streaming state store reliability, Spark Connect, Web UI/AQE observability, transaction APIs, Geo types, Python tooling, and JDK compatibility.
-   - No release landed, but the repo clearly stayed in high-frequency hardening mode.
+3. **2026-03-14 — Reproducibility became a first-class concern in dbt-core**  
+   Lockfile determinism, environment-sensitive hash drift, selector behavior, and configuration validation were recurring topics. This points to a broader industry shift toward reproducible data builds and CI-safe dependency management.
 
-4. **2026-03-14 — dbt-core surfaced reproducibility risks in dependency locking**
-   - Multiple issues pointed to `package-lock.yml` determinism problems, including hash drift across commands/environments and environment-sensitive Git package lock computation.
-   - This is strategically important: reproducibility is now a first-class concern for analytics engineering CI/CD.
+4. **2026-03-15 — Cross-project attention converged on semantic correctness and test rigor**  
+   Across dbt-core, Spark, and Substrait, the community focused on edge-case correctness: SQL behavior, nullability rules, transaction rollback behavior, duplicate test definitions, and numerical stability. Testing is increasingly being used to encode semantic contracts, not just catch regressions.
 
-5. **2026-03-14 to 2026-03-16 — Substrait made low-volume but high-leverage semantic corrections**
-   - Substrait updates stayed small in count but high in ecosystem importance: nullability rule tightening, type/signature corrections such as `add:date_iyear`, and explicit handling of `TIMESTAMP WITH LOCAL TIME ZONE`-style semantics in adjacent engine conversations.
-   - The broader theme is continued pressure toward cross-engine semantic convergence.
+5. **2026-03-16 — Substrait changes carried low volume but high leverage**  
+   Although Substrait activity was light, the week’s changes involved type-system and nullability semantics, including potentially breaking spec refinements. This matters because specification-layer changes can propagate to multiple engines and optimizers.
 
-6. **2026-03-15 — Testing infrastructure became a cross-project priority**
-   - dbt-core, Spark, and Substrait all showed explicit investment in test quality: nested macro override support, CI scheduling optimization, flaky state-store integration test fixes, and test asset enforcement for stricter spec semantics.
-   - This reflects a maturing ecosystem where tests increasingly encode contract semantics, not just implementation behavior.
+6. **2026-03-12 to 2026-03-16 — Streaming, CDC, and stateful incremental processing stayed hot**  
+   Spark advanced CDC- and DSv2-related work while dbt-core discussions touched microbatching and applied state. The ecosystem signal is clear: OLAP systems are increasingly expected to handle state-aware, incremental, and change-driven pipelines, not only periodic batch jobs.
 
-7. **2026-03-16 — Production-scale operability became a dominant theme**
-   - dbt-core focused on parse costs, disabled model handling, and snapshot diagnostics; Spark focused on RocksDB state store, stream-stream joins, Connect stability, and tooling consistency.
-   - The ecosystem emphasis has clearly shifted from “feature coverage” to “large-scale, long-running operational safety.”
+7. **2026-03-13 to 2026-03-16 — Developer experience shifted from “nice to have” to core platform capability**  
+   Better error messages, reduced parsing overhead, flaky test fixes, clearer docs, improved Web/UI observability, and script/toolchain stability were persistent themes. Mature OLAP infra is now competing on diagnosability and operational predictability.
 
 ---
 
 ## 2. Primary Engine Progress
 
 ### Apache Doris
-- **No Apache Doris-specific updates were present in the provided weekly source data.**
-- Based on this week’s broader ecosystem patterns, the most relevant Doris watchpoints for practitioners are:
-  - SQL semantics and cross-engine consistency
-  - Streaming/CDC ingestion-operability alignment
-  - Lakehouse/catalog interoperability
-  - Query correctness under optimizer complexity
-  - Enterprise-facing observability and diagnostics
+**No Apache Doris-specific activity was included in the provided weekly source material.**  
+Based on the week’s broader ecosystem movement, the most relevant areas to watch in Doris next are:
 
-**Practical takeaway:** even without explicit Doris repo signals this week, the surrounding ecosystem suggests that users should watch Doris for any upcoming movement in CDC/lakehouse interoperability, planner correctness, and operational tooling.
+- **Query semantic correctness** under optimizer edge cases
+- **Lakehouse/catalog interoperability** and external table semantics
+- **Streaming ingestion / CDC / incremental modeling integration**
+- **Operational DX**, especially observability, diagnostics, and test stability
+- **Standards alignment**, especially where Substrait-style interoperability could matter longer term
+
+If Doris appears in next week’s inputs, likely high-value signals would be around:
+- materialized view maintenance,
+- storage-compute separation,
+- lakehouse federation,
+- pipeline ingestion,
+- and query planner correctness/performance tradeoffs.
 
 ---
 
 ## 3. OLAP Engine Ecosystem
 
 ### Apache Spark
-Spark was the clearest execution-engine story this week.
+Spark was the clearest execution-layer leader this week.
 
-**Main themes**
-- **SQL correctness:** fixes around `dropDuplicates + exceptAll`, Unicode `LIKE`, numeric overflow in `asinh/acosh`, aggregate required-input propagation, cache cleanup, and vectorized reader behavior.
-- **Streaming stability:** RocksDB state store reliability, stream-stream join correctness, and state-format hardening remained active areas.
-- **Table APIs and CDC:** continued movement in DSv2 transaction and CDC capabilities, including `CHANGES`-related work.
-- **Developer/operator experience:** AQE UI improvements, front-end SQL tab modernization, docs/tooling fixes, pyspark script stability, and better environmental compatibility.
-- **Platform interfaces:** Spark Connect and JDK/Python compatibility stayed active, reinforcing Spark’s role as both engine and platform.
+**Key themes:**
+- **SQL correctness fixes**
+  - `dropDuplicates` + `ExceptAll` internal resolution issues
+  - Unicode `LIKE` matching edge cases
+  - numeric stability for `asinh/acosh`
+  - aggregation attribute propagation correctness
+- **Streaming and state management**
+  - RocksDB State Store stability
+  - stream-stream join and state format work
+  - flaky integration tests addressed
+- **Table/storage APIs**
+  - DSv2 transaction and CDC-related capabilities
+  - `CHANGES` clause work
+  - partition discovery and file-read-path robustness
+- **Developer/operator experience**
+  - SQL UI improvements
+  - AQE plan comparison visibility
+  - pyspark script/toolchain stability
+  - JDK/Python compatibility maintenance
+- **Connect and platformization**
+  - Spark Connect remained an ongoing investment area, reinforcing Spark’s shift toward service-oriented usage patterns
 
-**Bottom line:** Spark is prioritizing semantic safety and production operability over flashy feature expansion.
-
-### Substrait
-Substrait stayed quiet in volume, but meaningful in impact.
-
-**Main themes**
-- Function signature corrections
-- Nullability semantics tightening
-- Test/spec alignment
-- Clarification of enum/options semantics
-- Ongoing refinement of type-system precision
-
-**Bottom line:** Substrait continues to serve as a semantic alignment layer for the broader data engine stack.
+**Bottom line:** Spark is deep in production refinement mode: fewer flashy announcements, more work on making semantics, stateful execution, and interfaces dependable at scale.
 
 ### dbt-core
-While not an OLAP engine, dbt-core is increasingly central to the OLAP workflow layer.
+While not an engine, dbt-core was one of the week’s most important OLAP-adjacent infrastructure projects.
 
-**Main themes**
-- Snapshot correctness and simplification
-- Dependency locking determinism
-- Large-project parsing efficiency
-- Selector/model-state behavior
-- Better testability, including macro and `run_query` scenarios
-- Enterprise integration concerns, including private PyPI and package behavior
+**Key themes:**
+- **Snapshot semantics and stateful transformations**
+- **Lockfile determinism and dependency reproducibility**
+- **Parsing performance for large projects**
+- **Selector composability and metadata exposure**
+- **Python UDF packaging and enterprise package management**
+- **Improved errors, tests, and configuration behavior**
 
-**Bottom line:** dbt-core is evolving into a stronger control plane for analytics engineering.
+**Bottom line:** dbt-core is evolving into a more rigorous platform layer for governed transformation development, especially in larger enterprise environments.
 
-### ClickHouse / DuckDB / StarRocks / others
-- **No direct project-level updates for ClickHouse, DuckDB, or StarRocks were included in the provided source set.**
-- However, the week’s cross-ecosystem signals are highly relevant to these engines as peers:
-  - increasing pressure to align SQL/type behavior across systems
-  - stronger need for deterministic metadata and reproducible builds
-  - more focus on streaming/state correctness and CDC consumption
-  - higher user expectations around diagnostics, docs, and developer ergonomics
+### Substrait
+Substrait had lower volume but outsized ecosystem relevance.
+
+**Key themes:**
+- **Type system corrections**
+- **Nullability rule tightening**
+- **Function signature completeness**
+- **Test assets aligned more strictly with spec semantics**
+- **Clarification of implementation-facing spec boundaries**
+
+**Bottom line:** The project is steadily reducing semantic ambiguity. That is strategically important for cross-engine interoperability, compiler layers, and portable query plans.
+
+### ClickHouse, DuckDB, StarRocks, others
+**No direct project updates for ClickHouse, DuckDB, StarRocks, Pinot, Trino, or Druid were present in the supplied daily summaries.**  
+Still, the week’s cross-ecosystem pattern suggests peer engines are likely facing similar pressure in:
+- SQL edge-case correctness
+- interoperability and standards alignment
+- incremental / CDC-aware data paths
+- developer ergonomics and operational diagnostics
+- reproducible packaging and dependency/toolchain behavior
 
 ---
 
 ## 4. Data Infra Trends
 
-This week’s strongest technical directions across the OLAP/data infra community were:
+### 1. Semantic correctness is now the main battleground
+The strongest recurring signal this week was not new features, but eliminating semantic ambiguity:
+- SQL result correctness
+- nullability and type constraints
+- snapshot and state behavior
+- transaction rollback semantics
+- duplicate-definition rules in testing/config
 
-### 1) **Correctness over feature breadth**
-The clearest pattern was a systematic push to eliminate semantic edge-case failures:
-- SQL behavior under optimizer rewrites
-- type coercion and function signatures
-- nullability handling
-- snapshot/change-tracking correctness
-- cache/state consistency
+This is a hallmark of ecosystem maturity.
 
-This is a strong sign of ecosystem maturity.
+### 2. Testing is becoming a semantics enforcement layer
+Tests increasingly encode expected behavior across engines and tooling:
+- Spark’s regression and flaky-test work
+- dbt-core’s unit/data test semantics
+- Substrait’s tighter spec-to-test alignment
 
-### 2) **Determinism and reproducibility**
-Especially visible in dbt-core, but relevant more broadly:
-- lockfile stability
-- environment-independent dependency resolution
-- predictable parsing/compilation behavior
-- more explicit spec-driven semantics
+The trend: validation suites are evolving from QA tools into interoperability and contract-governance infrastructure.
 
-Expect this to remain a top issue for teams operating multi-env CI/CD pipelines.
+### 3. Reproducibility and determinism are rising priorities
+dbt-core’s lockfile and hash-drift discussions are especially notable.  
+For modern data platforms, reproducible builds, deterministic dependency resolution, and stable CI outcomes are becoming mandatory, particularly in regulated or multi-environment deployments.
 
-### 3) **Testing as contract infrastructure**
-Tests are increasingly becoming the place where projects encode:
-- semantic guarantees
-- compatibility promises
-- regression boundaries
-- cross-implementation consistency
+### 4. Incremental and state-aware processing continues to expand
+Microbatching, applied state, CDC APIs, `CHANGES` semantics, and stream-state correctness all point in one direction: the OLAP world is increasingly designed around ongoing change consumption, not static batch snapshots.
 
-This is especially important for standards and platform layers.
+### 5. Developer experience is becoming infrastructure strategy
+Error readability, docs quality, script stability, test scheduling, UI improvements, and parse-time optimization all received attention. This reflects a market reality: platform adoption depends heavily on reducing operational friction for engineers.
 
-### 4) **Operational hardening for large-scale production**
-Projects are spending more attention on:
-- parse/perf costs in large repos
-- streaming state stores
-- flaky test elimination
-- observability in adaptive plans
-- more actionable errors and diagnostics
-
-The market is rewarding systems that reduce operator uncertainty.
-
-### 5) **Incremental, CDC, and state-aware architectures**
-Signals from dbt-core and Spark suggest ongoing movement toward:
-- microbatch-aware workflows
-- applied state workflows
-- CDC-native table APIs
-- change consumption as a first-class OLAP pattern
-
-### 6) **Platformization of the data stack**
-Each layer is becoming more platform-like:
-- dbt-core: governance + metadata + packaging
-- Spark: interfaces + catalogs + Connect + execution platform
-- Substrait: interoperability standard layer
+### 6. Standards and interoperability remain a long-term force multiplier
+Substrait’s activity shows the ecosystem still values a common semantic substrate. Even when standards projects move slowly, their changes can have disproportionate downstream impact across optimizers, engines, and connectors.
 
 ---
 
 ## 5. HN Community Highlights
 
-**No direct Hacker News discussion data was included in the provided weekly inputs.**  
-Based on this week’s repo activity and the kinds of themes that typically resonate with data engineering audiences, the likely HN-relevant discussion topics were:
+**No explicit Hacker News discussion data was included in the source material**, so the following synthesizes likely community themes consistent with this week’s open-source signals.
 
-### Likely discussion themes
-- **“Correctness bugs in mature engines are still common”**
-  - Especially around Unicode, numeric edge cases, optimizer paths, and nullability.
-- **“Data tooling is becoming more operationally complex”**
-  - Dependency locking, package determinism, and environment drift remain painful.
-- **“Streaming and CDC are now table-stakes, not niche”**
-  - Users increasingly expect OLAP systems to process and expose change streams well.
-- **“Standards matter, but adoption depends on precise semantics”**
-  - Spec-layer ambiguity becomes expensive quickly when many engines implement it.
-- **“Developer experience is a competitive feature”**
-  - Better errors, docs, testability, and UI observability matter as much as raw speed for many teams.
+### Likely discussion topics
+- **Reliability over novelty**  
+  Data engineers increasingly care more about semantic guarantees and reproducibility than benchmark-driven feature announcements.
+- **Streaming/batch convergence**
+  Ongoing debate around whether modern OLAP stacks should unify CDC, streaming, and batch natively.
+- **Portability vs engine-specific optimization**
+  As standards like Substrait mature, the tradeoff between cross-engine portability and exploiting proprietary performance features remains a core tension.
+- **The real cost of data tooling is operability**
+  Teams continue to emphasize debugging quality, schema drift handling, testability, and dependency hygiene over raw syntax expressiveness.
+- **Python remains central, but integration quality matters**
+  Arrow, NumPy, UDFs, and notebook-to-production workflows remain important, but the conversation is shifting to serialization correctness, memory behavior, and stable interfaces.
 
-### Likely community sentiment
-- **Positive on engineering maturity**
-  - The tracked projects are clearly investing in hard problems that matter in production.
-- **Cautious on ecosystem complexity**
-  - More abstraction layers, metadata systems, and interoperability surfaces create new failure modes.
-- **Supportive of standardization**
-  - But only when standards reduce ambiguity rather than introduce another semantic layer to debug.
+### Likely sentiment
+Overall sentiment would likely be **pragmatic and moderately positive**:
+- positive on ecosystem maturity,
+- cautious on hidden semantic footguns,
+- and highly attentive to whether projects improve real-world maintainability rather than just surface area.
 
 ---
 
 ## 6. Next Week’s Signals
 
-Based on this week’s data, here is what looks worth watching next week:
+### 1. Expect more correctness-focused fixes than major releases
+Given the week’s pattern, next week is likely to continue emphasizing:
+- SQL edge cases
+- optimizer correctness
+- snapshot/state semantics
+- type/nullability clarifications
 
-1. **Spark correctness backports and follow-up fixes**
-   - Expect continued patches around SQL corner cases, optimizer-path correctness, and streaming state behavior.
-   - Watch for more work landing in stable branches.
+### 2. dbt-core may continue pushing on determinism and large-project ergonomics
+Watch for:
+- lockfile/package behavior changes
+- parser/manifest performance improvements
+- selector and metadata model evolution
+- tighter behavior around snapshots and tests
 
-2. **dbt-core lockfile and parse-performance follow-through**
-   - Reproducibility and large-project compile/parse costs look like active pressure points.
-   - Likely next steps: formalized hashing rules, env-handling clarifications, and parser scope reductions.
+### 3. Spark will likely keep shipping production-hardening work
+Highest-probability areas:
+- streaming state store stability
+- Spark Connect maturity
+- DSv2 / CDC functionality
+- Python/Arrow compatibility and performance
+- SQL correctness backports
 
-3. **More CDC/state-aware API movement**
-   - Spark’s DSv2 and `CHANGES` direction suggests broader momentum around incremental and change-native interfaces.
+### 4. Substrait may deliver more spec-tightening with broad downstream impact
+Even a small PR count can matter if it touches:
+- function signatures,
+- type coercion,
+- nullability rules,
+- or extension schema semantics.
 
-4. **Substrait semantic tightening**
-   - More low-volume, high-impact PRs are likely around types, nullability, and test assets.
-   - Any breaking or clarifying changes here will be disproportionately important for engine integrators.
+### 5. Interoperability and stateful incremental processing deserve close attention
+The strongest strategic signal from this week is the combination of:
+- stricter semantics,
+- more reproducible tooling,
+- and growing interest in incremental/state-aware execution.
 
-5. **Continued investment in diagnostics and operator tooling**
-   - Expect more UI, error-message, CI, and test-stability improvements across projects.
-   - These are now central product features for data infra teams.
-
-6. **Cross-layer convergence around semantics**
-   - The strongest medium-term signal remains convergence:
-     - dbt at the workflow/governance layer
-     - Spark at execution
-     - Substrait at specification
-   - Teams should watch for changes that improve or complicate alignment across these layers.
+That combination usually precedes broader ecosystem movement in:
+- portable plans,
+- CDC-native transformations,
+- and more unified batch/stream analytics workflows.
 
 ---
 
 ## Summary
-
-This week was defined less by releases and more by **semantic hardening, reproducibility, testing rigor, and production-scale operability**. Spark led in implementation velocity, dbt-core highlighted analytics engineering platform concerns, and Substrait continued to sharpen the interoperability substrate. For data engineers, the key takeaway is clear: the modern OLAP stack is maturing around **correctness, determinism, and operational trust**, not just new features.
+This week’s OLAP ecosystem activity was defined by **semantic tightening, reproducibility, state-aware processing, and operational maturity**. Spark led in implementation pace, dbt-core led in governance and developer workflow discussions, and Substrait continued to quietly shape the interoperability layer. For data engineers, the practical takeaway is clear: the ecosystem is optimizing less for feature breadth and more for **predictable behavior in production**.
 
 ---
 *This digest is auto-generated by [agents-radar](https://github.com/Baymine/OLAP-radar).*
