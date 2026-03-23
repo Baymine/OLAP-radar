@@ -1,5 +1,5 @@
 {
-  "generated": "2026-03-23T01:31:44.580Z",
+  "generated": "2026-03-23T03:39:31.279Z",
   "dates": [
     {
       "date": "2026-03-23",
@@ -13,7 +13,9 @@
         "olap-hn",
         "olap-hn-en",
         "olap-arxiv",
-        "olap-arxiv-en"
+        "olap-arxiv-en",
+        "olap-weekly",
+        "olap-weekly-en"
       ]
     },
     {
