@@ -1,6 +1,21 @@
 {
-  "generated": "2026-03-24T01:26:25.858Z",
+  "generated": "2026-03-25T01:31:40.359Z",
   "dates": [
+    {
+      "date": "2026-03-25",
+      "reports": [
+        "olap-index",
+        "olap-index-en",
+        "olap-engines",
+        "olap-engines-en",
+        "olap-trending",
+        "olap-trending-en",
+        "olap-hn",
+        "olap-hn-en",
+        "olap-arxiv",
+        "olap-arxiv-en"
+      ]
+    },
     {
       "date": "2026-03-24",
       "reports": [
