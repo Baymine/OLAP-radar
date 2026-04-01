@@ -6,7 +6,77 @@
     <description>OLAP 开源生态每日简报 · Daily OLAP ecosystem digest</description>
     <language>zh-CN</language>
     <atom:link href="https://duanyytop.github.io/agents-radar/feed.xml" rel="self" type="application/rss+xml"/>
-    <lastBuildDate>Tue, 31 Mar 2026 01:37:44 +0000</lastBuildDate>
+    <lastBuildDate>Wed, 01 Apr 2026 01:59:27 +0000</lastBuildDate>
+    <item>
+      <title>OLAP 生态索引日报 2026-04-01</title>
+      <link>https://duanyytop.github.io/agents-radar/#2026-04-01/olap-index</link>
+      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-04-01/olap-index</guid>
+      <pubDate>Wed, 01 Apr 2026 00:00:00 +0000</pubDate>
+      <description>OLAP 生态索引日报 2026-04-01</description>
+    </item>
+    <item>
+      <title>OLAP Ecosystem Index Digest 2026-04-01</title>
+      <link>https://duanyytop.github.io/agents-radar/#2026-04-01/olap-index-en</link>
+      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-04-01/olap-index-en</guid>
+      <pubDate>Wed, 01 Apr 2026 00:00:00 +0000</pubDate>
+      <description>OLAP Ecosystem Index Digest 2026-04-01</description>
+    </item>
+    <item>
+      <title>OLAP 引擎生态日报 2026-04-01</title>
+      <link>https://duanyytop.github.io/agents-radar/#2026-04-01/olap-engines</link>
+      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-04-01/olap-engines</guid>
+      <pubDate>Wed, 01 Apr 2026 00:00:00 +0000</pubDate>
+      <description>OLAP 引擎生态日报 2026-04-01</description>
+    </item>
+    <item>
+      <title>OLAP Engines Ecosystem Digest 2026-04-01</title>
+      <link>https://duanyytop.github.io/agents-radar/#2026-04-01/olap-engines-en</link>
+      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-04-01/olap-engines-en</guid>
+      <pubDate>Wed, 01 Apr 2026 00:00:00 +0000</pubDate>
+      <description>OLAP Engines Ecosystem Digest 2026-04-01</description>
+    </item>
+    <item>
+      <title>OLAP 开源趋势日报 2026-04-01</title>
+      <link>https://duanyytop.github.io/agents-radar/#2026-04-01/olap-trending</link>
+      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-04-01/olap-trending</guid>
+      <pubDate>Wed, 01 Apr 2026 00:00:00 +0000</pubDate>
+      <description>OLAP 开源趋势日报 2026-04-01</description>
+    </item>
+    <item>
+      <title>OLAP Open Source Trends 2026-04-01</title>
+      <link>https://duanyytop.github.io/agents-radar/#2026-04-01/olap-trending-en</link>
+      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-04-01/olap-trending-en</guid>
+      <pubDate>Wed, 01 Apr 2026 00:00:00 +0000</pubDate>
+      <description>OLAP Open Source Trends 2026-04-01</description>
+    </item>
+    <item>
+      <title>Hacker News 数据基础设施社区动态日报 2026-04-01</title>
+      <link>https://duanyytop.github.io/agents-radar/#2026-04-01/olap-hn</link>
+      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-04-01/olap-hn</guid>
+      <pubDate>Wed, 01 Apr 2026 00:00:00 +0000</pubDate>
+      <description>Hacker News 数据基础设施社区动态日报 2026-04-01</description>
+    </item>
+    <item>
+      <title>Hacker News Data Infrastructure Community Digest 2026-04-01</title>
+      <link>https://duanyytop.github.io/agents-radar/#2026-04-01/olap-hn-en</link>
+      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-04-01/olap-hn-en</guid>
+      <pubDate>Wed, 01 Apr 2026 00:00:00 +0000</pubDate>
+      <description>Hacker News Data Infrastructure Community Digest 2026-04-01</description>
+    </item>
+    <item>
+      <title>OLAP 每日论文精选（arXiv） 2026-04-01</title>
+      <link>https://duanyytop.github.io/agents-radar/#2026-04-01/olap-arxiv</link>
+      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-04-01/olap-arxiv</guid>
+      <pubDate>Wed, 01 Apr 2026 00:00:00 +0000</pubDate>
+      <description>OLAP 每日论文精选（arXiv） 2026-04-01</description>
+    </item>
+    <item>
+      <title>OLAP Daily Top Paper from arXiv 2026-04-01</title>
+      <link>https://duanyytop.github.io/agents-radar/#2026-04-01/olap-arxiv-en</link>
+      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-04-01/olap-arxiv-en</guid>
+      <pubDate>Wed, 01 Apr 2026 00:00:00 +0000</pubDate>
+      <description>OLAP Daily Top Paper from arXiv 2026-04-01</description>
+    </item>
     <item>
       <title>OLAP 生态索引日报 2026-03-31</title>
       <link>https://duanyytop.github.io/agents-radar/#2026-03-31/olap-index</link>
@@ -146,76 +216,6 @@
       <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-30/olap-weekly-en</guid>
       <pubDate>Mon, 30 Mar 2026 00:00:00 +0000</pubDate>
       <description>OLAP Ecosystem Weekly Report 2026-03-30</description>
-    </item>
-    <item>
-      <title>OLAP 生态索引日报 2026-03-29</title>
-      <link>https://duanyytop.github.io/agents-radar/#2026-03-29/olap-index</link>
-      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-29/olap-index</guid>
-      <pubDate>Sun, 29 Mar 2026 00:00:00 +0000</pubDate>
-      <description>OLAP 生态索引日报 2026-03-29</description>
-    </item>
-    <item>
-      <title>OLAP Ecosystem Index Digest 2026-03-29</title>
-      <link>https://duanyytop.github.io/agents-radar/#2026-03-29/olap-index-en</link>
-      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-29/olap-index-en</guid>
-      <pubDate>Sun, 29 Mar 2026 00:00:00 +0000</pubDate>
-      <description>OLAP Ecosystem Index Digest 2026-03-29</description>
-    </item>
-    <item>
-      <title>OLAP 引擎生态日报 2026-03-29</title>
-      <link>https://duanyytop.github.io/agents-radar/#2026-03-29/olap-engines</link>
-      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-29/olap-engines</guid>
-      <pubDate>Sun, 29 Mar 2026 00:00:00 +0000</pubDate>
-      <description>OLAP 引擎生态日报 2026-03-29</description>
-    </item>
-    <item>
-      <title>OLAP Engines Ecosystem Digest 2026-03-29</title>
-      <link>https://duanyytop.github.io/agents-radar/#2026-03-29/olap-engines-en</link>
-      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-29/olap-engines-en</guid>
-      <pubDate>Sun, 29 Mar 2026 00:00:00 +0000</pubDate>
-      <description>OLAP Engines Ecosystem Digest 2026-03-29</description>
-    </item>
-    <item>
-      <title>OLAP 开源趋势日报 2026-03-29</title>
-      <link>https://duanyytop.github.io/agents-radar/#2026-03-29/olap-trending</link>
-      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-29/olap-trending</guid>
-      <pubDate>Sun, 29 Mar 2026 00:00:00 +0000</pubDate>
-      <description>OLAP 开源趋势日报 2026-03-29</description>
-    </item>
-    <item>
-      <title>OLAP Open Source Trends 2026-03-29</title>
-      <link>https://duanyytop.github.io/agents-radar/#2026-03-29/olap-trending-en</link>
-      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-29/olap-trending-en</guid>
-      <pubDate>Sun, 29 Mar 2026 00:00:00 +0000</pubDate>
-      <description>OLAP Open Source Trends 2026-03-29</description>
-    </item>
-    <item>
-      <title>Hacker News 数据基础设施社区动态日报 2026-03-29</title>
-      <link>https://duanyytop.github.io/agents-radar/#2026-03-29/olap-hn</link>
-      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-29/olap-hn</guid>
-      <pubDate>Sun, 29 Mar 2026 00:00:00 +0000</pubDate>
-      <description>Hacker News 数据基础设施社区动态日报 2026-03-29</description>
-    </item>
-    <item>
-      <title>Hacker News Data Infrastructure Community Digest 2026-03-29</title>
-      <link>https://duanyytop.github.io/agents-radar/#2026-03-29/olap-hn-en</link>
-      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-29/olap-hn-en</guid>
-      <pubDate>Sun, 29 Mar 2026 00:00:00 +0000</pubDate>
-      <description>Hacker News Data Infrastructure Community Digest 2026-03-29</description>
-    </item>
-    <item>
-      <title>OLAP 每日论文精选（arXiv） 2026-03-29</title>
-      <link>https://duanyytop.github.io/agents-radar/#2026-03-29/olap-arxiv</link>
-      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-29/olap-arxiv</guid>
-      <pubDate>Sun, 29 Mar 2026 00:00:00 +0000</pubDate>
-      <description>OLAP 每日论文精选（arXiv） 2026-03-29</description>
-    </item>
-    <item>
-      <title>OLAP Daily Top Paper from arXiv 2026-03-29</title>
-      <link>https://duanyytop.github.io/agents-radar/#2026-03-29/olap-arxiv-en</link>
-      <guid isPermaLink="true">https://duanyytop.github.io/agents-radar/#2026-03-29/olap-arxiv-en</guid>
-      <pubDate>Sun, 29 Mar 2026 00:00:00 +0000</pubDate>
-      <description>OLAP Daily Top Paper from arXiv 2026-03-29</description>
     </item>
   </channel>
 </rss>
